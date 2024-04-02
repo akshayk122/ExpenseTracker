@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expense Prediction</title>
+    <style>
+        /* Add CSS styles for the cards */
+        .card {
+            border: 1px solid #ccc;
+            padding: 20px;
+            width: 70%;
+            margin: 20px;
+            display: inline-block;
+            vertical-align: top;
+            box-sizing: border-box;
+        }
+    </style>
+</head>
+<body>
+    <h1>Expense Prediction</h1>
+
+    <!-- Monthly filtering card -->
+    <div class="card">
+        <h2>Monthly Filter</h2>
+        <!-- Add elements for filtering monthly expenses -->
+        <!-- Example: dropdown for selecting month and year -->
+    </div>
+
+    <!-- Actual monthly expenses card -->
+    <div class="card">
+        <h2>Actual Monthly Expenses</h2>
+        <!-- Add elements for displaying actual monthly expenses -->
+        <!-- Example: table or list to show expenses -->
+    </div>
+
+    <!-- Future expenses predictions card -->
+    <div class="card">
+        <h2>Future Expenses Predictions</h2>
+        <!-- Add elements for displaying future expenses predictions -->
+        <!-- Example: displaying the plot using base64 encoded string -->
+        <img src="data:image/png;base64,{{ plot_data }}" alt="Future Expenses Predictions">
+    </div>
+</body>
+</html>

@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Expense</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+            padding: 20px;
+            overflow-y: hidden;
+        }
+
+        h1 {
+            color: #007bff;
+            margin-bottom: 20px;
+        }
+
+        form {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        label {
+            font-weight: bold;
+            color: #555;
+        }
+
+        .button-container {
+         text-align: center;
+        }
+
+        input[type="text"],
+        select,
+        input[type="file"],
+        input[type="date"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        input[type="submit"],
+        input[type="reset"] {
+            background-color: #007bff;
+            color: #fff;
+            cursor: pointer;
+            width: 15%;
+            padding: 10px;
+            margin-top: 20px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            display: inline-block;
+        }
+
+    input[type="submit"]:hover,
+    input[type="reset"]:hover {
+        background-color: #0056b3;
+    }
+    </style>
+</head>
+<body>
+    <h1>Add Expense</h1>
+    <form action="/addexpense" method="POST" enctype="multipart/form-data">
+        <label for="amount">Amount:</label>
+        <input type="text" id="amount" name="amount" required>
+        <br><br>
+        <label for="category">Category:</label>
+        <select id="category" name="category">
+            <option value="food">Food</option>
+            <option value="transport">Transport</option>
+            <option value="shopping">Shopping</option>
+            <option value="utilities">Utilities</option>
+            <!-- Add more options as needed -->
+        </select>
+        <!--
+        <br><br>
+        <label for="bill">Upload Bill Image:</label>
+        <input type="file" id="bill" name="bill" accept="image/*">-->
+        <br><br>
+        <label for="date">Date:</label>
+        <input type="date" id="date" name="date">
+        <br><br>
+        <div class="button-container">
+            <input type="submit" value="Update">
+            <input type="reset" value="Reset">
+        </div>
+    </form>
+</body>
+</html>

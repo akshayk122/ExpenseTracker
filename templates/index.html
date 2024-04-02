@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expense Tracker</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body class="bg-light">
+    <div class="container">
+        <h1 class="mt-5">Welcome to Expense Tracker</h1>
+        <p class="lead">Track your expenses easily!</p>
+        <a class="btn btn-primary mr-2" href="{{ url_for('signup') }}">Signup</a>
+        <a class="btn btn-success" href="{{ url_for('login') }}">Login</a>
+    </div>
+</body>
+</html>

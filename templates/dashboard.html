@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <!-- Include any additional CSS files for graphs if needed -->
+    <style>
+    /* Custom styles for the entire page */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f8f9fa;
+}
+
+.container-fluid {
+    padding-right: 15px;
+    padding-left: 15px;
+    margin-right: auto;
+    margin-left: auto;
+}
+
+.nav-side-menu {
+    background-color: #56595b; /* Dark blue background */
+    color: #fff;
+    padding-top: 20px;
+    height: 100%;
+    width: 250px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.brand {
+    font-size: 24px;
+    margin-bottom: 20px;
+    color: #fff;
+    text-align: center;
+    line-height: 50px;
+}
+
+.nav-side-menu .nav-item {
+    margin-bottom: 10px;
+    padding: 8px 15px;
+}
+
+.nav-side-menu .nav-item a {
+    color: #fff;
+    text-decoration: none;
+    position: relative;
+    display: inline-block;
+}
+
+.nav-side-menu .nav-item a::before {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 20%;
+    width: 0;
+    height: 2px;
+    background-color: #fff; /* White line */
+    transition: width 0.3s ease-in-out, left 0.3s ease-in-out; /* Width and position transition */
+}
+
+.nav-side-menu .nav-item a:hover::before {
+    width: 100%; /* Full width on hover */
+    left: 0; /* Move from center to the left */
+}
+
+.content {
+    margin-left: 250px;
+    padding: 20px;
+}
+
+.content-area {
+    min-height: calc(100vh - 56px);
+    overflow-y: auto;
+}
+
+.card {
+    height: 100%;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(186, 240, 240, 0.1);
+}
+
+.card-title {
+    color: #007bff;
+    font-size: 18px;
+    margin-bottom: 15px;
+}
+
+.card-body {
+    padding: 20px;
+}
+
+.welcome {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+}
+
+@media (max-width: 768px) {
+    .content {
+        margin-left: 0;
+    }
+    
+    .nav-side-menu {
+        width: 100%;
+        margin-bottom: 20px;
+        position: static;
+        height: auto;
+    }
+}
+
+/* Style the active link */
+.nav-side-menu .nav-link.active {
+    background-color: #007bff;
+}
+
+/* Style the active link text */
+.nav-side-menu .nav-link.active,
+.nav-side-menu .nav-link.active:hover {
+    color: #fff;
+}
+
+
+    </style>
+</head>
+<body>
+    <div class="nav-side-menu">
+        <div class="brand">Expense Tracker</div>
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a class="nav-link" href="/dashboard">
+                    <img src="{{url_for('static', filename='icons/db.svg')}}" alt="Dashboard Icon" width="24" height="24">Dashboard</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#" onclick="loadPage('/addexpense')"><img src="{{url_for('static', filename='icons/expense.svg')}}" alt="Expense Icon" width="24" height="24">Add Expense</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#" onclick="loadPage('/predict_expense')"><img src="{{url_for('static', filename='icons/Prediction.svg')}}" alt="Prediction Icon" width="24" height="24">Expense Prediction</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#" onclick="loadPage('/profile')"><img src="{{url_for('static', filename='icons/profile.svg')}}" alt="Dashboard Icon" width="24" height="24">Profile</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#"><img src="{{url_for('static', filename='icons/logout.svg')}}" alt="Dashboard Icon" width="24" height="24">Logout</a>
+            </li>
+        </ul>
+    </div>
+    
+    <div class="content">
+        <div class="welcome">
+            Welcome, {{ username }}!
+        </div>
+        
+        <div class="content-area">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Total Expenses</h5>
+                                <!-- Include dynamic content for total expenses here -->
+                                
+                                <p class="card-text">Total expenses: $500</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Montlhy Expenses</h5>
+                                <!-- Include dynamic content for total expenses here -->
+                                <p class="card-text">Total expenses: $500</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">NA</h5>
+                                <!-- Include dynamic content for total expenses here -->
+                                <p class="card-text">Total expenses: $500</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row mt-3">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Graph 1</h5>
+                                <!-- Include dynamic content for graph 1 here -->
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Graph 2</h5>
+                                <!-- Include dynamic content for graph 2 here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+<script>
+    function loadPage(url) {
+        var xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200) {
+                document.querySelector('.content-area').innerHTML = this.responseText;
+            }
+        };
+        xhttp.open("GET", url, true);
+        xhttp.send();
+    }
+    </script>
+    
+</html>
