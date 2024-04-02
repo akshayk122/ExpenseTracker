@@ -22,7 +22,7 @@ body {
 }
 
 .nav-side-menu {
-    background-color: #56595b; /* Dark blue background */
+    background-color: #007bff; /* Dark blue background */
     color: #fff;
     padding-top: 20px;
     height: 100%;
@@ -136,19 +136,19 @@ body {
         <ul class="nav flex-column">
             <li class="nav-item">
                 <a class="nav-link" href="/dashboard">
-                    <img src="{{url_for('static', filename='icons/db.svg')}}" alt="Dashboard Icon" width="24" height="24">Dashboard</a>
+                    <img src="{{url_for('static', filename='icons/report.svg')}}" alt="Dashboard Icon" width="24" height="24">Dashboard</a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="#" onclick="loadPage('/addexpense')"><img src="{{url_for('static', filename='icons/expense.svg')}}" alt="Expense Icon" width="24" height="24">Add Expense</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="#" onclick="loadPage('/predict_expense')"><img src="{{url_for('static', filename='icons/Prediction.svg')}}" alt="Prediction Icon" width="24" height="24">Expense Prediction</a>
+                <a class="nav-link" href="#" onclick="loadPage('/predict_expense')"><img src="{{url_for('static', filename='icons/report.svg')}}" alt="Prediction Icon" width="24" height="24">Prediction</a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="#" onclick="loadPage('/profile')"><img src="{{url_for('static', filename='icons/profile.svg')}}" alt="Dashboard Icon" width="24" height="24">Profile</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="#"><img src="{{url_for('static', filename='icons/logout.svg')}}" alt="Dashboard Icon" width="24" height="24">Logout</a>
+                <a class="nav-link" href="/logout"><img src="{{url_for('static', filename='icons/logout.svg')}}" alt="Dashboard Icon" width="24" height="24">Logout</a>
             </li>
         </ul>
     </div>
