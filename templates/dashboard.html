@@ -23,7 +23,13 @@
                 <a class="nav-link" href="#" onclick="loadPage('/addexpense')"><img src="{{url_for('static', filename='icons/expense.svg')}}" alt="Expense Icon" width="24" height="24">Add Expense</a>
             </li>
             <li class="nav-item">
+                <a class="nav-link" href="#" onclick="loadPage('/addexpense')"><img src="{{url_for('static', filename='icons/expense.svg')}}" alt="Expense Icon" width="24" height="24">Transactions</a>
+            </li>
+            <li class="nav-item">
                 <a class="nav-link" href="#" onclick="loadPage('/predict_expense')"><img src="{{url_for('static', filename='icons/report.svg')}}" alt="Prediction Icon" width="24" height="24">Prediction</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#" onclick="loadPage('/addexpense')"><img src="{{url_for('static', filename='icons/expense.svg')}}" alt="Expense Icon" width="24" height="24">Goals</a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="#" onclick="loadPage('/profile')"><img src="{{url_for('static', filename='icons/profile.svg')}}" alt="Dashboard Icon" width="24" height="24">Profile</a>
@@ -70,13 +76,23 @@
                             </div>
                         </div>
                     </div>
+                    <div class="col-md-3">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Budget Overview</h5>
+                                <!-- Include dynamic content for total expenses here -->
+                                
+                                <p class="card-text">Total expenses: $500</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 
                 <div class="row mt-3">
                     <div class="col-md-6">
                         <div class="card">
                             <div class="card-body">
-                                <h5 class="card-title">Graph 1</h5>
+                                <h5 class="card-title">Expense Categories</h5>
                                 <!-- Include dynamic content for graph 1 here -->
                             </div>
                         </div>
