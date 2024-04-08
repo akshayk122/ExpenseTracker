@@ -42,8 +42,8 @@
                         <td>{{ expense[3] }}</td> <!-- Corrected Index for Date -->
                         <td>
                             <!-- Assuming you have 'edit' and 'delete' routes set up correctly -->
-                            <a href="/edit/{{ expense[0] }}" class="btn btn-sm btn-primary">Edit</a>
-                            <form action="/delete/{{ expense[0] }}" method="post" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this expense?');">
+                            <a href="#" class="btn btn-sm btn-primary" onclick="loadPage('/edit/{{ expense[0] }}')">Edit</a>
+                            <form action="#" method="post" style="display: inline;" onclick="loadPage('/delete/{{ expense[0] }}')" onsubmit="return confirm('Are you sure you want to delete this expense?');">
                                 <input type="submit" value="Delete" class="btn btn-sm btn-danger">
                             </form>
                             
@@ -58,6 +58,57 @@
     </div>
 </body>
 <script>
+    function loadPage(url) {
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+        if (this.readyState === 4 && this.status === 200) {
+            var contentArea = document.querySelector('.content-area');
+            contentArea.innerHTML = this.responseText;
+            
+            // Manually trigger a reflow
+            contentArea.style.display = 'none';
+            contentArea.offsetHeight; // This line is key
+            contentArea.style.display = '';
+
+            // If there are scripts that need to run to enhance cards (like Masonry, Isotope, etc.),
+            // re-initialize those scripts here.
+            // E.g., if you're using a plugin:
+            // $('.grid').masonry();
+        }
+    };
+    xhttp.open("GET", url, true);
+    xhttp.send();
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Initial setup that needs to happen once the DOM is fully loaded
+    // initializeCards();
+});
+
+
+    function applyLayoutFixes() {
+        // Add flex utilities to the row to ensure proper alignment
+        var rows = document.querySelectorAll('.content-area .row');
+        rows.forEach(function(row) {
+            row.classList.add('d-flex', 'flex-wrap');
+        });
+
+        // Re-apply column classes to ensure proper grid layout
+        var cards = document.querySelectorAll('.content-area .card');
+        cards.forEach(function(card) {
+            var column = card.closest('.col-md-3, .col-md-6');
+            if (column) {
+                // Reset the column sizes
+                column.classList.add('col-md-3'); // Adjust this class as necessary
+            }
+        });
+
+        // Add any additional layout fixes that you find necessary here
+    }
+
+    // Run the layout fixes on initial load as well
+    document.addEventListener('DOMContentLoaded', applyLayoutFixes);
+
 document.getElementById('categoryFilter').addEventListener('change', function() {
     window.location.href = `/viewexpense?category=${encodeURIComponent(this.value)}`;
 });

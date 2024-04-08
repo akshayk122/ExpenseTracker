@@ -8,7 +8,7 @@
 <body>
     <div class="container">
         <h2>Edit Expense</h2>
-        <form action="{{ url_for('edit_expense', expense_id=expense['id']) }}" method="POST">
+        <form  action="{{ url_for('edit_expense', expense_id=expense['id']) }}" method="POST">
             <label for="amount">Amount:</label>
             <input type="number" id="amount" name="amount" value="{{ expense['amount'] }}" required>
             
@@ -26,4 +26,31 @@
         </form>
     </div>
 </body>
+<script>
+    document.getElementById('editExpenseForm').addEventListener('submit', function(e) {
+        e.preventDefault(); // Prevent default form submission
+        
+        const form = e.target;
+        const url = form.action;
+        const formData = new FormData(form);
+        
+        fetch(url, {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.text())
+        .then(html => {
+            // Assuming the response is the HTML you want to display
+            document.querySelector('.content-area').innerHTML = html;
+            
+            // Manually trigger a reflow if needed
+            const contentArea = document.querySelector('.content-area');
+            contentArea.style.display = 'none';
+            contentArea.offsetHeight; // Trigger reflow
+            contentArea.style.display = '';
+        })
+        .catch(error => console.error('Error:', error));
+    });
+    </script>
+    
 </html>
