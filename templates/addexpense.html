@@ -74,7 +74,7 @@
         <input type="number" id="amount" name="amount"  required>
         <br><br>
         <label for="category">Category:</label>
-        <select id="category" name="category">
+        <select id="category" name="category" required>
             <option value="food">Food</option>
             <option value="transport">Transport</option>
             <option value="shopping">Shopping</option>
@@ -86,11 +86,14 @@
         <label for="bill">Upload Bill Image:</label>
         <input type="file" id="bill" name="bill" accept="image/*">-->
         <br><br>
+        <label for="description">description:</label>
+        <input type="text" class="form-control custom-input" id="description" name="description">
+        <br><br>
         <label for="date">Date:</label>
-        <input type="date" id="date" name="date">
+        <input type="date" id="date" name="date" required>
         <br><br>
         <div class="button-container">
-            <input type="submit" value="Update">
+            <input type="submit" value="Add">
             <input type="reset" value="Reset">
         </div>
     </form>

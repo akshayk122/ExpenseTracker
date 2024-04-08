@@ -21,12 +21,16 @@ def index():
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
     if request.method == 'POST':
+        email = request.form['email']
         username = request.form['username']
+        firstname=request.form['firstname']
+        lastname=request.form['lastname']
         password = request.form['password']
+        confirmpassword = request.form['confirmpassword']
         
         conn = sqlite3.connect('expense_tracker.db')
         c = conn.cursor()
-        c.execute("INSERT INTO users (username, password) VALUES (?, ?)", (username, password))
+        c.execute("INSERT INTO users (email,username,firstname,lastname,password,confirmpassword) VALUES (?, ?, ?, ?, ?, ?)", (email,username,firstname,lastname,password,confirmpassword))
         conn.commit()
         conn.close()
         
@@ -38,11 +42,12 @@ def addexpense():
     if request.method == 'POST':
         amount = request.form['amount']
         category = request.form['category']
+        description = request.form['description']
         date=request.form['date']
         
         conn = sqlite3.connect('expense_tracker.db')
         c = conn.cursor()
-        c.execute("INSERT INTO expense (amount, category,date) VALUES (?,?,?)", (amount, category,date))
+        c.execute("INSERT INTO expense (amount, category,description,date) VALUES (?,?,?,?)", (amount, category,description,date))
         conn.commit()
         conn.close()
         return redirect(url_for('dashboard'))
@@ -61,7 +66,7 @@ def login():
         conn.close()
         
         if user:
-            session['username'] = user[1]
+            session['username'] = user[3]
             return redirect(url_for('dashboard'))
         else:
             return render_template('login.html', error='Invalid username or password')
@@ -101,7 +106,7 @@ def predict_expense():
 def fetch_actual_expenses():
     conn = sqlite3.connect('expense_tracker.db')  
     cur = conn.cursor()
-    cur.execute("SELECT category, amount FROM expense")
+    cur.execute("SELECT rowid, amount, category, date FROM expense")  # Include rowid for delete/edit actions
     expenses = cur.fetchall()
     conn.close()
     return expenses
@@ -126,6 +131,35 @@ def actual_expenses():
     plot_data_actual = base64.b64encode(buffer.getvalue()).decode()
     plt.close()
     return render_template('prediction.html', plot_data=plot_data_actual)
+
+@app.route('/viewexpense')
+def show_expenses():
+    expenses = fetch_actual_expenses()
+    return render_template('viewexpense.html', expenses=expenses)
+
+@app.route('/edit/<int:expense_id>', methods=['GET', 'POST'])
+def edit_expense(expense_id):
+    if request.method == 'POST':
+        # Process the form data and update the expense in the database
+        amount = request.form['amount']
+        category = request.form['category']
+        date = request.form['date']
+        # Assume conn is your database connection and you've imported necessary modules
+        conn.execute("UPDATE expense SET amount = ?, category = ?, date = ? WHERE rowid = ?", (amount, category, date, expense_id))
+        conn.commit()
+        return redirect(url_for('show_expenses'))
+    else:
+        conn = sqlite3.connect('expense_tracker.db')
+        conn.row_factory = sqlite3.Row  # This enables column access by name
+        cur = conn.cursor()
+        cur.execute("SELECT rowid, amount, category, date FROM expense WHERE rowid = ?", (expense_id,))
+        expense = cur.fetchone()
+        conn.close()
+        if expense:
+            return render_template('edit_expense.html', expense=expense)
+        else:
+            return 'Expense not found', 404
+
 
 @app.route('/profile')
 def profile():

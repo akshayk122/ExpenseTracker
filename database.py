@@ -7,7 +7,7 @@ def init_db():
 
     # Create users table if not exists
     c.execute('''CREATE TABLE IF NOT EXISTS users
-                 (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT, password TEXT)''')
+                 (id INTEGER PRIMARY KEY AUTOINCREMENT,email TEXT,username TEXT,firstname TEXT,lastname TEXT, password TEXT,confirmpassword TEXT)''')
 
     # Create expense table if not exists
     c.execute('''CREATE TABLE IF NOT EXISTS expense
