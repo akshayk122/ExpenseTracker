@@ -106,7 +106,7 @@ def predict_expense():
 def fetch_actual_expenses():
     conn = sqlite3.connect('expense_tracker.db')  
     cur = conn.cursor()
-    cur.execute("SELECT rowid, amount, category, date FROM expense")  # Include rowid for delete/edit actions
+    cur.execute("SELECT id, amount, category, date FROM expense")  # Include id for delete/edit actions
     expenses = cur.fetchall()
     conn.close()
     return expenses
@@ -135,30 +135,58 @@ def actual_expenses():
 @app.route('/viewexpense')
 def show_expenses():
     expenses = fetch_actual_expenses()
-    return render_template('viewexpense.html', expenses=expenses)
+    conn = sqlite3.connect('expense_tracker.db')
+    conn.row_factory = sqlite3.Row
+    cur = conn.cursor()
+    cur.execute("SELECT DISTINCT category FROM expense")
+    categories = [row['category'] for row in cur.fetchall()]
+    return render_template('viewexpense.html', expenses=expenses,categories=categories)
+
+
 
 @app.route('/edit/<int:expense_id>', methods=['GET', 'POST'])
 def edit_expense(expense_id):
     if request.method == 'POST':
+        conn = sqlite3.connect('expense_tracker.db')
         # Process the form data and update the expense in the database
         amount = request.form['amount']
         category = request.form['category']
         date = request.form['date']
         # Assume conn is your database connection and you've imported necessary modules
-        conn.execute("UPDATE expense SET amount = ?, category = ?, date = ? WHERE rowid = ?", (amount, category, date, expense_id))
+        conn.execute("UPDATE expense SET amount = ?, category = ?, date = ? WHERE id = ?", (amount, category, date,expense_id,))
         conn.commit()
-        return redirect(url_for('show_expenses'))
+        expenses = fetch_actual_expenses()
+        return render_template('viewexpense.html', expenses=expenses)
     else:
         conn = sqlite3.connect('expense_tracker.db')
         conn.row_factory = sqlite3.Row  # This enables column access by name
         cur = conn.cursor()
-        cur.execute("SELECT rowid, amount, category, date FROM expense WHERE rowid = ?", (expense_id,))
+        cur.execute("SELECT id, amount, category, date FROM expense WHERE id = ?", (expense_id,))
         expense = cur.fetchone()
         conn.close()
         if expense:
-            return render_template('edit_expense.html', expense=expense)
+            return render_template('editexpense.html', expense=expense)
         else:
             return 'Expense not found', 404
+        
+
+@app.route('/delete/<int:expense_id>', methods=['POST'])
+def delete_expense(expense_id):
+    # Connect to the database
+    conn = sqlite3.connect('expense_tracker.db')
+    cur = conn.cursor()
+
+    # Delete the expense with the given expense_id
+    cur.execute("DELETE FROM expense WHERE id = ?", (expense_id,))
+    conn.commit()
+    conn.close()
+
+    # Fetch the updated list of expenses or redirect to the main view
+    # Assuming there's a function or route that shows all expenses
+    expenses = fetch_actual_expenses()
+    return render_template('viewexpense.html', expenses=expenses)
+
+
 
 
 @app.route('/profile')

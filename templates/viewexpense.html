@@ -15,8 +15,11 @@
             <label for="categoryFilter">Category:</label>
             <select id="categoryFilter" class="form-control">
                 <option value="">All</option>
-                <!-- Dynamically populate categories -->
+                {% for category in categories %}
+                    <option value="{{ category }}" {% if category == selected_category %}selected{% endif %}>{{ category }}</option>
+                {% endfor %}
             </select>
+            
         </div>
         <div class="row">
             <div class="col">
@@ -40,7 +43,10 @@
                         <td>
                             <!-- Assuming you have 'edit' and 'delete' routes set up correctly -->
                             <a href="/edit/{{ expense[0] }}" class="btn btn-sm btn-primary">Edit</a>
-                            <a href="/delete/{{ expense[0] }}" class="btn btn-sm btn-danger">Delete</a>
+                            <form action="/delete/{{ expense[0] }}" method="post" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this expense?');">
+                                <input type="submit" value="Delete" class="btn btn-sm btn-danger">
+                            </form>
+                            
                         </td>
                     </tr>
                           {% endfor %}
@@ -51,4 +57,11 @@
         </div>
     </div>
 </body>
+<script>
+document.getElementById('categoryFilter').addEventListener('change', function() {
+    window.location.href = `/viewexpense?category=${encodeURIComponent(this.value)}`;
+});
+
+
+</script>
 </html>
