@@ -10,7 +10,7 @@
 <body class="bg-light">
     <div class="container mt-5">
         <h1>Signup</h1>
-        <form action="{{ url_for('signup') }}" method="POST">
+        <form id="signupForm" action="{{ url_for('signup') }}" method="POST">
             <div class="form-group">
                 <label for="email">Email:</label>
                 <input type="text" class="form-control custom-input" id="email" name="email">
@@ -37,17 +37,27 @@
             </div>
             <div class="form-group">
                 <label for="confirmpassword">Confirm Password:</label>
-                <input type="confirmpassword" class="form-control custom-input" id="confirmpassword" name="confirmpassword">
+                <input type="password" class="form-control custom-input" id="confirmpassword" name="confirmpassword">
             </div>
             <button type="submit" class="btn btn-primary">Signup</button>
         </form>
     </div>
 </body>
+<script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-    {% with messages = get_flashed_messages() %}
-        {% if messages %}
-            alert("{{ messages[0] }}");
-        {% endif %}
-    {% endwith %}
+    document.getElementById("signupForm").onsubmit = function(e) {
+        var password = document.getElementById("password").value;
+        var confirmPassword = document.getElementById("confirmpassword").value;
+        
+        if (password !== confirmPassword) {
+            e.preventDefault(); // Prevent form submission
+            Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: 'Passwords do not match!',
+                footer: 'Please ensure the passwords match before submitting.'
+            });
+        }
+    };
 </script>
 </html>
