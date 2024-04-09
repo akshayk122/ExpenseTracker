@@ -28,15 +28,26 @@
                 <input type="text" class="form-control custom-input" id="lastname" name="lastname">
             </div>
             <div class="form-group">
+                <label for="lastname">Phone:</label>
+                <input type="tel" class="form-control custom-input" id="tel" name="tel"  pattern="[0-9]{10}" required>
+            </div>
+            <div class="form-group">
                 <label for="password">Password:</label>
                 <input type="password" class="form-control custom-input" id="password" name="password">
             </div>
             <div class="form-group">
-                <label for="confirmpassword">Password:</label>
+                <label for="confirmpassword">Confirm Password:</label>
                 <input type="confirmpassword" class="form-control custom-input" id="confirmpassword" name="confirmpassword">
             </div>
             <button type="submit" class="btn btn-primary">Signup</button>
         </form>
     </div>
 </body>
+<script>
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            alert("{{ messages[0] }}");
+        {% endif %}
+    {% endwith %}
+</script>
 </html>

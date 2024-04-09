@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, session,make_response
+from flask import Flask, render_template, request, redirect, url_for, session,make_response,flash
 import sqlite3
 import database as db
 import matplotlib.pyplot as plt
@@ -10,7 +10,7 @@ import base64
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'
 
-
+uname=''
 db.init_db()
 
 # Routes
@@ -25,14 +25,21 @@ def signup():
         username = request.form['username']
         firstname=request.form['firstname']
         lastname=request.form['lastname']
+        phone=request.form['tel']
         password = request.form['password']
         confirmpassword = request.form['confirmpassword']
         
         conn = sqlite3.connect('expense_tracker.db')
         c = conn.cursor()
-        c.execute("INSERT INTO users (email,username,firstname,lastname,password,confirmpassword) VALUES (?, ?, ?, ?, ?, ?)", (email,username,firstname,lastname,password,confirmpassword))
-        conn.commit()
-        conn.close()
+        c.execute("SELECT * FROM users WHERE username = ?", (username,))
+        if c.fetchone():
+        # Username already exists, return an error message
+            flash("Signup failed. Please try again.")
+            return redirect(url_for('signup'))
+        else:
+            c.execute("INSERT INTO users (email,username,firstname,lastname,phone,password) VALUES (?, ?, ?, ?, ?, ?)", (email,username,firstname,lastname,phone,password))
+            conn.commit()
+            conn.close()
         
         return render_template('index.html')
     return render_template('signup.html')
@@ -56,9 +63,9 @@ def addexpense():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
+        
         username = request.form['username']
         password = request.form['password']
-        
         conn = sqlite3.connect('expense_tracker.db')
         c = conn.cursor()
         c.execute("SELECT * FROM users WHERE username = ? AND password = ?", (username, password))
@@ -67,6 +74,7 @@ def login():
         
         if user:
             session['username'] = user[3]
+            session['userid']=user[0]
             return redirect(url_for('dashboard'))
         else:
             return render_template('login.html', error='Invalid username or password')
@@ -187,11 +195,25 @@ def delete_expense(expense_id):
     return render_template('viewexpense.html', expenses=expenses)
 
 
-
-
-@app.route('/profile')
+@app.route('/profile', methods=['GET','POST'])
 def profile():
-    return render_template('profile.html')
+        if  request.method == "POST":
+            email = request.form['email']
+            username = request.form['username']
+            firstname=request.form['firstname']
+            lastname=request.form['lastname']
+            phone=request.form['phone']
+            password = request.form['password']
+            conn = sqlite3.connect('expense_tracker.db')
+            cur = conn.cursor()
+            cur.execute("SELECT id, amount, category, date FROM expense")
+            expenses = cur.fetchall()
+            conn.close()
+            print(expenses)
+            return render_template('profile.html')
+        else:
+            print('get')
+            return render_template('profile.html')
 
 @app.route('/logout')
 def logout():
