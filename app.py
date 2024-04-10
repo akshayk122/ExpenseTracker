@@ -4,6 +4,13 @@ import database as db
 import matplotlib.pyplot as plt
 from io import BytesIO
 import base64
+from flask import Flask, request, render_template
+from PIL import Image
+import pytesseract
+pytesseract.pytesseract.tesseract_cmd = r'C:\Path\To\Tesseract-OCR\tesseract.exe'  # Update this path
+import re
+from datetime import datetime
+
 
 
 
@@ -51,7 +58,8 @@ def addexpense():
         category = request.form['category']
         description = request.form['description']
         date=request.form['date']
-        
+        file = request.files['bill']
+        #read_expense()
         conn = sqlite3.connect('expense_tracker.db')
         c = conn.cursor()
         c.execute("INSERT INTO expense (userid,amount, category,description,date) VALUES (?,?,?,?,?)", (session['userid'],amount, category,description,date))
@@ -59,6 +67,48 @@ def addexpense():
         conn.close()
         return redirect(url_for('dashboard'))
     return render_template('addexpense.html')
+
+def read_expense():
+    # Check if a file is uploaded
+    if 'bill' not in request.files:
+        return 'No file uploaded', 400
+    
+    file = request.files['bill']
+    
+    # Check if the file is an image
+    if file and allowed_file(file.filename):
+        # Convert the image to text using pytesseract
+        text = pytesseract.image_to_string(Image.open(file))
+        
+        # Process the text to extract relevant information
+        # (You'll need to implement this based on your specific requirements)
+        extracted_info = process_extracted_text(text)
+        
+        # Save the extracted information to the database
+        # (You'll need to implement this based on your specific requirements)
+        print('bill',extracted_info)
+        
+        return 'Expense added successfully', 200
+    else:
+        return 'Invalid file format', 400
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in {'png', 'jpg', 'jpeg', 'gif'}
+
+def process_extracted_text(text):
+    # Define a regular expression pattern to match the total amount
+    # This pattern assumes the total amount is preceded by "Total" and followed by a number
+    # You may need to adjust this pattern based on the format of your bills/receipts
+    pattern = r'Total:?\s*\$?(\d+\.\d{2})'
+
+    # Search for the pattern in the extracted text
+    match = re.search(pattern, text, re.IGNORECASE)
+
+    # If a match is found, return the total amount
+    if match:
+        return match.group(1)
+    else:
+        return None  # No total amount found
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -71,7 +121,6 @@ def login():
         c.execute("SELECT * FROM users WHERE username = ? AND password = ?", (username, password))
         user = c.fetchone()
         conn.close()
-        
         if user:
             session['username'] = user[3]
             session['userid']=user[0]
@@ -83,7 +132,13 @@ def login():
 @app.route('/dashboard')
 def dashboard():
     if 'username' in session:
-        response = make_response(render_template('dashboard.html', username=session['username']))
+        #read database data
+        totalexpense=fetch_total_expenses()
+        monthexpense,topcategory,topamount=fetch_currentmonth_expenses()
+        actual=actual_expense_graph()
+        monthlyexpsense=monthly_expense_graph()
+        #print(totalexpense)
+        response = make_response(render_template('dashboard.html', username=session['username'],totalexpense=totalexpense,monthexpense=monthexpense,actual=actual,monthlyexpsense=monthlyexpsense,topcategory=topcategory,topamount=topamount))
         response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
         response.headers['Pragma'] = 'no-cache'
         response.headers['Expires'] = '0'
@@ -92,9 +147,19 @@ def dashboard():
 
 @app.route('/predict_expense')
 def predict_expense():
+    conn = sqlite3.connect('expense_tracker.db')  
+    cur = conn.cursor()
     # Plotting the future expenses predictions
-    categories = ['Food', 'Transport', 'Shopping', 'Utilities']
-    expenses = [400, 200, 250, 150]
+    categories = ['food', 'transport', 'shopping', 'utilities']
+    expenses = []
+    for category in categories:
+        cur.execute("SELECT SUM(amount) FROM expense WHERE userid = ? AND category = ?", (session['userid'], category))
+        result = cur.fetchone()
+        expense_amount = result[0] if result[0] is not None else 0
+        expenses.append(expense_amount)
+
+    print(expenses)
+    
     plt.figure(figsize=(6, 6))
     plt.bar(categories, expenses, color='salmon')
     plt.xlabel('Categories')
@@ -108,7 +173,6 @@ def predict_expense():
 
     # Converting bytes object to base64 encoded string
     plot_data = base64.b64encode(buffer.read()).decode()
-
     return render_template('prediction.html', plot_data=plot_data)
 
 def fetch_actual_expenses():
@@ -119,6 +183,101 @@ def fetch_actual_expenses():
     expenses = cur.fetchall()
     conn.close()
     return expenses
+
+def fetch_total_expenses():
+    conn = sqlite3.connect('expense_tracker.db')  
+    cur = conn.cursor()
+    #cur.execute("SELECT id, amount, category, date FROM expense")  # Include id for delete/edit actions
+    cur.execute("SELECT  sum(amount) FROM expense WHERE userid = ?", (session['userid'],))
+    mexpenses = cur.fetchone()
+    total_expenses = mexpenses[0]
+    conn.close()
+    return total_expenses
+
+def fetch_currentmonth_expenses():
+    conn = sqlite3.connect('expense_tracker.db')
+    cur = conn.cursor()
+
+    # Get the current month and year as strings
+    current_month = datetime.now().strftime('%m')
+    current_year = datetime.now().strftime('%Y')
+
+    # Query to sum the amount for the current month and year for the logged-in user
+    cur.execute("SELECT SUM(amount) FROM expense WHERE userid = ? AND strftime('%Y', date) = ? AND strftime('%m', date) = ?",
+                (session['userid'], current_year, current_month))
+
+    mexpenses = cur.fetchone()
+    month_expenses = mexpenses[0] if mexpenses[0] is not None else 0  # Set to 0 if no expenses
+
+    #top expense
+    cur.execute("SELECT category, SUM(amount) as total FROM expense WHERE userid = ? AND strftime('%Y', date) = ? AND strftime('%m', date) = ? GROUP BY category ORDER BY total DESC LIMIT 1",
+                (session['userid'], current_year, current_month))
+
+    top_category = cur.fetchone()
+    top_category_expense = top_category[1] if top_category else 0
+    top_category_name = top_category[0] if top_category else "No expenses"
+
+    conn.close()
+    return month_expenses,top_category_expense,top_category_name
+
+
+def actual_expense_graph():
+    conn = sqlite3.connect('expense_tracker.db')  
+    cur = conn.cursor()
+    # Plotting the future expenses predictions
+    categories = ['food', 'transport', 'shopping', 'utilities']
+    expenses = []
+    for category in categories:
+        cur.execute("SELECT SUM(amount) FROM expense WHERE userid = ? AND category = ?", (session['userid'], category))
+        result = cur.fetchone()
+        expense_amount = result[0] if result[0] is not None else 0
+        expenses.append(expense_amount)
+    plt.figure(figsize=(4, 4))
+    #plt.bar(categories, expenses, color='salmon')
+    plt.pie(expenses, labels=categories, autopct='%1.1f%%', startangle=140, colors=['#ff9999','#66b3ff','#99ff99','#ffcc99'])
+    #plt.xlabel('Categories')
+    #plt.ylabel('Expenses')
+    plt.title('Actual Expenses')
+
+    # Saving plot to a bytes object
+    buffer = BytesIO()
+    plt.savefig(buffer, format='png')
+    buffer.seek(0)
+
+    # Converting bytes object to base64 encoded string
+    actual_plot_data = base64.b64encode(buffer.read()).decode()
+    return actual_plot_data
+
+def monthly_expense_graph():
+    conn = sqlite3.connect('expense_tracker.db')  
+    cur = conn.cursor()
+    # Plotting the future expenses predictions
+    categories = ['food', 'transport', 'shopping', 'utilities']
+    expenses = []
+    # Get the current month and year as strings
+    current_month = datetime.now().strftime('%m')
+    current_year = datetime.now().strftime('%Y')
+    for category in categories:
+        cur.execute("SELECT SUM(amount) FROM expense WHERE userid = ? AND category = ?", (session['userid'], category))
+        cur.execute("SELECT SUM(amount) FROM expense WHERE userid = ? AND category = ? AND strftime('%Y', date) = ? AND strftime('%m', date) = ?",
+                (session['userid'],category, current_year, current_month))
+        result = cur.fetchone()
+        expense_amount = result[0] if result[0] is not None else 0
+        expenses.append(expense_amount)
+    plt.figure(figsize=(4, 4))
+    #plt.bar(categories, expenses, color='salmon')
+    #plt.pie(expenses, labels=categories, autopct='%1.1f%%', startangle=140, colors=['#ff9999','#66b3ff','#99ff99','#ffcc99'])
+    plt.pie(expenses, labels=categories, autopct='%1.1f%%', startangle=140, colors=['#ff9999', '#66b3ff', '#99ff99', '#ffcc99'], wedgeprops={'width': 0.3})
+    plt.title('Actual Monthly Expenses')
+
+    # Saving plot to a bytes object
+    buffer = BytesIO()
+    plt.savefig(buffer, format='png')
+    buffer.seek(0)
+
+    # Converting bytes object to base64 encoded string
+    actual_mplot_data = base64.b64encode(buffer.read()).decode()
+    return actual_mplot_data
 
 def actual_expenses():
     #expenses_data = fetch_actual_expenses()
@@ -165,7 +324,8 @@ def edit_expense(expense_id):
         conn.execute("UPDATE expense SET amount = ?, category = ?, date = ? WHERE id = ?", (amount, category, date,expense_id,))
         conn.commit()
         expenses = fetch_actual_expenses()
-        return render_template('viewexpense.html', expenses=expenses)
+        #return render_template('viewexpense.html', expenses=expenses)
+        return redirect(url_for('dashboard'))
     else:
         conn = sqlite3.connect('expense_tracker.db')
         conn.row_factory = sqlite3.Row  # This enables column access by name

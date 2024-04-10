@@ -9,7 +9,11 @@
 
 
     <!-- Include any additional CSS files for graphs if needed -->
-
+    <style>
+     .custom-card-height {
+    height: 400px; /* Change this value to your desired height */
+}
+    </style>
 </head>
 <body>
     <div class="nav-side-menu">
@@ -17,25 +21,25 @@
         <ul class="nav flex-column">
             <li class="nav-item">
                 <a class="nav-link" href="/dashboard">
-                    <img src="{{url_for('static', filename='icons/report.svg')}}" alt="Dashboard Icon" width="24" height="24">Dashboard</a>
+                    <img src="{{url_for('static', filename='icons/dashboard.svg')}}" alt="Dashboard Icon" width="24" height="24">   Dashboard</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="#" onclick="loadPage('/addexpense')"><img src="{{url_for('static', filename='icons/expense.svg')}}" alt="Expense Icon" width="24" height="24">Add Expense</a>
+                <a class="nav-link" href="#" onclick="loadPage('/addexpense')"> <img src="{{url_for('static', filename='icons/manage-expense1.svg')}}" alt="Expense Icon" width="24" height="24">   Add Expense</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="#" onclick="loadPage('/viewexpense')"><img src="{{url_for('static', filename='icons/expense.svg')}}" alt="Expense Icon" width="24" height="24">Transactions</a>
+                <a class="nav-link" href="#" onclick="loadPage('/viewexpense')"><img src="{{url_for('static', filename='icons/transactions.svg')}}" alt="Expense Icon" width="24" height="24">  Transactions</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="#" onclick="loadPage('/predict_expense')"><img src="{{url_for('static', filename='icons/report.svg')}}" alt="Prediction Icon" width="24" height="24">Prediction</a>
+                <a class="nav-link" href="#" onclick="loadPage('/predict_expense')"><img src="{{url_for('static', filename='icons/prediction1.svg')}}" alt="Prediction Icon" width="24" height="24">    Prediction</a>
             </li>
             <!--<li class="nav-item">
                 <a class="nav-link" href="#" onclick="loadPage('/addexpense')"><img src="{{url_for('static', filename='icons/expense.svg')}}" alt="Expense Icon" width="24" height="24">Goals</a>
             </li>-->
             <li class="nav-item">
-                <a class="nav-link" href="#" onclick="loadPage('/profile')"><img src="{{url_for('static', filename='icons/profile.svg')}}" alt="Dashboard Icon" width="24" height="24">Profile</a>
+                <a class="nav-link" href="#" onclick="loadPage('/profile')"><img src="{{url_for('static', filename='icons/profile1.svg')}}" alt="Dashboard Icon" width="26" height="26">    Profile</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="/logout"><img src="{{url_for('static', filename='icons/logout.svg')}}" alt="Dashboard Icon" width="24" height="24">Logout</a>
+                <a class="nav-link" href="/logout"><img src="{{url_for('static', filename='icons/logout.svg')}}" alt="Dashboard Icon" width="20" height="20">   Logout</a>
             </li>
         </ul>
     </div>
@@ -49,13 +53,15 @@
             <div class="container-fluid">
                 <div class="row">
                     <div class="col-md-3">
+                        <div class="card custom-card-height">
                         <div class="card">
                             <div class="card-body">
                                 <h5 class="card-title">Total Expenses</h5>
                                 <!-- Include dynamic content for total expenses here -->
                                 
-                                <p class="card-text">Total expenses: $500</p>
+                                <p class="card-text">Total expenses:$ {{totalexpense}}</p>
                             </div>
+                        </div>
                         </div>
                     </div>
                     <div class="col-md-3">
@@ -63,16 +69,16 @@
                             <div class="card-body">
                                 <h5 class="card-title">Montlhy Expenses</h5>
                                 <!-- Include dynamic content for total expenses here -->
-                                <p class="card-text">Total expenses: $500</p>
+                                <p class="card-text">Total expenses: $ {{monthexpense}}</p>
                             </div>
                         </div>
                     </div>
                     <div class="col-md-3">
                         <div class="card">
                             <div class="card-body">
-                                <h5 class="card-title">NA</h5>
+                                <h5 class="card-title">Top Category</h5>
                                 <!-- Include dynamic content for total expenses here -->
-                                <p class="card-text">Total expenses: $500</p>
+                                <p class="card-text">Total expenses: ${{topcategory}} Category :{{topamount}}</p>
                             </div>
                         </div>
                     </div>
@@ -94,14 +100,16 @@
                             <div class="card-body">
                                 <h5 class="card-title">Expense Categories</h5>
                                 <!-- Include dynamic content for graph 1 here -->
+                                <img src="data:image/png;base64,{{ actual }}" alt="Future Expenses Predictions">
                             </div>
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="card">
                             <div class="card-body">
-                                <h5 class="card-title">Graph 2</h5>
+                                <h5 class="card-title">Monthly</h5>
                                 <!-- Include dynamic content for graph 2 here -->
+                                <img src="data:image/png;base64,{{ monthlyexpsense }}" alt="Future Expenses Predictions">
                             </div>
                         </div>
                     </div>
