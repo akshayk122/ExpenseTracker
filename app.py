@@ -54,7 +54,7 @@ def addexpense():
         
         conn = sqlite3.connect('expense_tracker.db')
         c = conn.cursor()
-        c.execute("INSERT INTO expense (amount, category,description,date) VALUES (?,?,?,?)", (amount, category,description,date))
+        c.execute("INSERT INTO expense (userid,amount, category,description,date) VALUES (?,?,?,?,?)", (session['userid'],amount, category,description,date))
         conn.commit()
         conn.close()
         return redirect(url_for('dashboard'))
@@ -114,7 +114,8 @@ def predict_expense():
 def fetch_actual_expenses():
     conn = sqlite3.connect('expense_tracker.db')  
     cur = conn.cursor()
-    cur.execute("SELECT id, amount, category, date FROM expense")  # Include id for delete/edit actions
+    #cur.execute("SELECT id, amount, category, date FROM expense")  # Include id for delete/edit actions
+    cur.execute("SELECT  id,amount, category, date FROM expense WHERE userid = ?", (session['userid'],))
     expenses = cur.fetchall()
     conn.close()
     return expenses
@@ -169,7 +170,7 @@ def edit_expense(expense_id):
         conn = sqlite3.connect('expense_tracker.db')
         conn.row_factory = sqlite3.Row  # This enables column access by name
         cur = conn.cursor()
-        cur.execute("SELECT id, amount, category, date FROM expense WHERE id = ?", (expense_id,))
+        cur.execute("SELECT  id,amount, category, date FROM expense WHERE userid = ?", (session['userid'],))
         expense = cur.fetchone()
         conn.close()
         if expense:

@@ -12,6 +12,7 @@ def init_db():
     # Create expense table if not exists
     c.execute('''CREATE TABLE IF NOT EXISTS expense
                  (id INTEGER PRIMARY KEY AUTOINCREMENT, 
+                 userid INTEGER,
                  amount DECIMAL(10, 2) NOT NULL,
                  category VARCHAR(50) NOT NULL,
                  description TEXT,
