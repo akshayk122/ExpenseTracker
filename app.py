@@ -10,6 +10,14 @@ import pytesseract
 pytesseract.pytesseract.tesseract_cmd = r'C:\Path\To\Tesseract-OCR\tesseract.exe'  # Update this path
 import re
 from datetime import datetime
+import numpy as np
+import scan_receipt as sn
+from werkzeug.utils import secure_filename
+import tempfile
+import os
+import time
+from contextlib import contextmanager
+
 
 
 
@@ -35,6 +43,7 @@ def signup():
         phone=request.form['tel']
         password = request.form['password']
         confirmpassword = request.form['confirmpassword']
+        role='user'
         
         conn = sqlite3.connect('expense_tracker.db')
         c = conn.cursor()
@@ -44,12 +53,22 @@ def signup():
             flash("Signup failed. Please try again.")
             return redirect(url_for('signup'))
         else:
-            c.execute("INSERT INTO users (email,username,firstname,lastname,phone,password) VALUES (?, ?, ?, ?, ?, ?)", (email,username,firstname,lastname,phone,password))
+            c.execute("INSERT INTO users (email,username,firstname,lastname,phone,password,role) VALUES (?, ?, ?, ?, ?, ?, ?)", (email,username,firstname,lastname,phone,password,role))
             conn.commit()
             conn.close()
         
         return render_template('index.html')
     return render_template('signup.html')
+
+@contextmanager
+def temporary_file(suffix=''):
+    """Create and yield a temporary file, ensuring its deletion afterward."""
+    fd, temp_file_path = tempfile.mkstemp(suffix=suffix)
+    try:
+        yield temp_file_path
+    finally:
+        os.close(fd)
+        os.unlink(temp_file_path)
 
 @app.route('/addexpense', methods=['GET', 'POST'])
 def addexpense():
@@ -59,7 +78,18 @@ def addexpense():
         description = request.form['description']
         date=request.form['date']
         file = request.files['bill']
-        #read_expense()
+        #file processing block
+        if file.filename == '':
+            return 'No selected file'
+        if file:
+            with temporary_file(suffix=os.path.splitext(file.filename)[1]) as temp_file_path:
+                file.save(temp_file_path)
+                data=sn.scan_image(temp_file_path)
+                print(data)
+                
+        #file processing end
+        #data=sn.scan_image(file)
+       
         conn = sqlite3.connect('expense_tracker.db')
         c = conn.cursor()
         c.execute("INSERT INTO expense (userid,amount, category,description,date) VALUES (?,?,?,?,?)", (session['userid'],amount, category,description,date))
@@ -113,23 +143,43 @@ def process_extracted_text(text):
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        
         username = request.form['username']
         password = request.form['password']
+        role = request.form['role']
+
         conn = sqlite3.connect('expense_tracker.db')
         c = conn.cursor()
-        c.execute("SELECT * FROM users WHERE username = ? AND password = ?", (username, password))
-        user = c.fetchone()
-        conn.close()
-        if user:
-            session['username'] = user[3]
-            session['userid']=user[0]
-            return redirect(url_for('dashboard'))
+        
+        if role == 'admin':
+            #redirect admin dashboard
+            c.execute("SELECT * FROM users WHERE username = ? AND password = ? and role = ? ", (username, password,role))
+            user = c.fetchone()
+            if user:
+                #print(user)
+                session['username'] = user[3]
+                session['userid']=user[0]
+                return redirect(url_for('dashboard'))
+            else:
+                return render_template('login.html', error='Invalid username or password')
+        elif role == 'user':
+            #redirect user dashboard
+            c.execute("SELECT * FROM users WHERE username = ? AND password = ? and role = ? ", (username, password,role))
+            user = c.fetchone()
+            if user:
+                #print(user)
+                session['username'] = user[3]
+                session['userid']=user[0]
+                return redirect(url_for('dashboard'))
+            else:
+                return render_template('login.html', error='Invalid username or password')
         else:
-            return render_template('login.html', error='Invalid username or password')
+            #check if user exists in database
+            print('no role')
+
+        conn.close()
     return render_template('login.html')
 
-@app.route('/dashboard')
+@app.route('/dashboard', methods=['GET', 'POST'])
 def dashboard():
     if 'username' in session:
         #read database data
@@ -139,6 +189,23 @@ def dashboard():
         monthlyexpsense=monthly_expense_graph()
         #print(totalexpense)
         response = make_response(render_template('dashboard.html', username=session['username'],totalexpense=totalexpense,monthexpense=monthexpense,actual=actual,monthlyexpsense=monthlyexpsense,topcategory=topcategory,topamount=topamount))
+        response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+        response.headers['Pragma'] = 'no-cache'
+        response.headers['Expires'] = '0'
+        return response
+    return redirect(url_for('login'))
+
+#Admin dashboard
+@app.route('/admindashboard', methods=['GET', 'POST'])
+def admindashboard():
+    if 'username' in session:
+        #read database data
+        totalexpense=fetch_total_expenses()
+        monthexpense,topcategory,topamount=fetch_currentmonth_expenses()
+        actual=actual_expense_graph()
+        monthlyexpsense=monthly_expense_graph()
+        #print(totalexpense)
+        response = make_response(render_template('admindashboard.html', username=session['username'],totalexpense=totalexpense,monthexpense=monthexpense,actual=actual,monthlyexpsense=monthlyexpsense,topcategory=topcategory,topamount=topamount))
         response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
         response.headers['Pragma'] = 'no-cache'
         response.headers['Expires'] = '0'
@@ -158,7 +225,7 @@ def predict_expense():
         expense_amount = result[0] if result[0] is not None else 0
         expenses.append(expense_amount)
 
-    print(expenses)
+    #print(expenses)
     
     plt.figure(figsize=(6, 6))
     plt.bar(categories, expenses, color='salmon')
@@ -232,13 +299,18 @@ def actual_expense_graph():
         result = cur.fetchone()
         expense_amount = result[0] if result[0] is not None else 0
         expenses.append(expense_amount)
-    plt.figure(figsize=(4, 4))
-    #plt.bar(categories, expenses, color='salmon')
-    plt.pie(expenses, labels=categories, autopct='%1.1f%%', startangle=140, colors=['#ff9999','#66b3ff','#99ff99','#ffcc99'])
-    #plt.xlabel('Categories')
-    #plt.ylabel('Expenses')
-    plt.title('Actual Expenses')
-
+    
+    expenses = [expense if not np.isnan(expense) else 0 for expense in expenses]
+   # Check if sum of expenses is zero
+    if sum(expenses) == 0:
+        # Handle the case where there are no expenses
+        plt.figure(figsize=(4, 4))
+        plt.pie([1], labels=[''], colors=['#cccccc'])
+        plt.title('Actual Expenses')
+    else:
+        plt.figure(figsize=(4, 4))
+        plt.pie(expenses, labels=categories, autopct='%1.1f%%', startangle=140, colors=['#ff9999','#66b3ff','#99ff99','#ffcc99'])
+        plt.title('Actual Expenses')
     # Saving plot to a bytes object
     buffer = BytesIO()
     plt.savefig(buffer, format='png')
@@ -264,11 +336,19 @@ def monthly_expense_graph():
         result = cur.fetchone()
         expense_amount = result[0] if result[0] is not None else 0
         expenses.append(expense_amount)
-    plt.figure(figsize=(4, 4))
-    #plt.bar(categories, expenses, color='salmon')
-    #plt.pie(expenses, labels=categories, autopct='%1.1f%%', startangle=140, colors=['#ff9999','#66b3ff','#99ff99','#ffcc99'])
-    plt.pie(expenses, labels=categories, autopct='%1.1f%%', startangle=140, colors=['#ff9999', '#66b3ff', '#99ff99', '#ffcc99'], wedgeprops={'width': 0.3})
-    plt.title('Actual Monthly Expenses')
+
+    # Check if sum of expenses is zero
+    if sum(expenses) == 0:
+        # Handle the case where there are no expenses
+        plt.figure(figsize=(4, 4))
+        plt.pie([1], labels=[''], colors=['#cccccc'])
+        plt.title('Actual Expenses')
+    else:
+        plt.figure(figsize=(4, 4))
+        #plt.pie(expenses, labels=categories, autopct='%1.1f%%', startangle=140, colors=['#ff9999','#66b3ff','#99ff99','#ffcc99'])
+        plt.title('Actual Monthly Expenses')
+        plt.pie(expenses, labels=categories, autopct='%1.1f%%', startangle=140, colors=['#ff9999', '#66b3ff', '#99ff99', '#ffcc99'], wedgeprops={'width': 0.3})
+
 
     # Saving plot to a bytes object
     buffer = BytesIO()
@@ -339,21 +419,22 @@ def edit_expense(expense_id):
             return 'Expense not found', 404
         
 
-@app.route('/delete/<int:expense_id>', methods=['POST'])
+@app.route('/delete/<int:expense_id>', methods=['GET','POST'])
 def delete_expense(expense_id):
     # Connect to the database
     conn = sqlite3.connect('expense_tracker.db')
     cur = conn.cursor()
-
     # Delete the expense with the given expense_id
-    cur.execute("DELETE FROM expense WHERE id = ?", (expense_id,))
+    cur.execute("DELETE FROM expense WHERE id = ?",(expense_id,))
     conn.commit()
     conn.close()
-
     # Fetch the updated list of expenses or redirect to the main view
     # Assuming there's a function or route that shows all expenses
+    cur.execute("SELECT DISTINCT category FROM expense")
+    categories = [row['category'] for row in cur.fetchall()]
     expenses = fetch_actual_expenses()
-    return render_template('viewexpense.html', expenses=expenses)
+    #return render_template('viewexpense.html', expenses=expenses,categories=categories)
+    return redirect(url_for('viewexpense'))
 
 
 @app.route('/profile', methods=['GET','POST'])

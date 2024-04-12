@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/static/style.css">
+
+
+    <!-- Include any additional CSS files for graphs if needed -->
+    <style>
+     .custom-card-height {
+    height: 400px; /* Change this value to your desired height */
+}
+    </style>
+</head>
+<body>
+    <div class="nav-side-menu">
+        <div class="brand">Expense Tracker</div>
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a class="nav-link" href="/dashboard">
+                    <img src="{{url_for('static', filename='icons/dashboard.svg')}}" alt="Dashboard Icon" width="24" height="24">   Dashboard</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#" onclick="loadPage('/addexpense')"> <img src="{{url_for('static', filename='icons/manage-expense1.svg')}}" alt="Expense Icon" width="24" height="24">   Add Expense</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#" onclick="loadPage('/viewexpense')"><img src="{{url_for('static', filename='icons/transactions.svg')}}" alt="Expense Icon" width="24" height="24">  Transactions</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#" onclick="loadPage('/predict_expense')"><img src="{{url_for('static', filename='icons/prediction1.svg')}}" alt="Prediction Icon" width="24" height="24">    Prediction</a>
+            </li>
+            <!--<li class="nav-item">
+                <a class="nav-link" href="#" onclick="loadPage('/addexpense')"><img src="{{url_for('static', filename='icons/expense.svg')}}" alt="Expense Icon" width="24" height="24">Goals</a>
+            </li>-->
+            <li class="nav-item">
+                <a class="nav-link" href="#" onclick="loadPage('/profile')"><img src="{{url_for('static', filename='icons/profile1.svg')}}" alt="Dashboard Icon" width="26" height="26">    Profile</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/logout"><img src="{{url_for('static', filename='icons/logout.svg')}}" alt="Dashboard Icon" width="20" height="20">   Logout</a>
+            </li>
+        </ul>
+    </div>
+    
+    <div class="content">
+        <div class="welcome">
+            Welcome, {{ username }}!
+        </div>
+        
+        <div class="content-area">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="card custom-card-height">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Total Expenses</h5>
+                                <!-- Include dynamic content for total expenses here -->
+                                
+                                <p class="card-text">Total expenses: $<span id="counter">0</span></p>
+                            </div>
+                        </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Montlhy Expenses</h5>
+                                <!-- Include dynamic content for total expenses here -->
+                                <p class="card-text">Total expenses: $ {{monthexpense}}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Top Category</h5>
+                                <!-- Include dynamic content for total expenses here -->
+                                <p class="card-text">Total expenses: ${{topcategory}} Category :{{topamount}}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <!--
+                    <div class="col-md-3">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Budget Overview</h5>
+                               
+                                
+                                <p class="card-text">Total expenses: $500</p>
+                            </div>
+                        </div>
+                    </div>-->
+                </div>
+                
+                <div class="row mt-3">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Expense Categories</h5>
+                                <!-- Include dynamic content for graph 1 here -->
+                                <img src="data:image/png;base64,{{ actual }}" alt="Future Expenses Predictions">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Monthly</h5>
+                                <!-- Include dynamic content for graph 2 here -->
+                                <img src="data:image/png;base64,{{ monthlyexpsense }}" alt="Future Expenses Predictions">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+<script>
+    function loadPage(url) {
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+        if (this.readyState === 4 && this.status === 200) {
+            var contentArea = document.querySelector('.content-area');
+            contentArea.innerHTML = this.responseText;
+            
+            // Manually trigger a reflow
+            contentArea.style.display = 'none';
+            contentArea.offsetHeight; // This line is key
+            contentArea.style.display = '';
+
+            // If there are scripts that need to run to enhance cards (like Masonry, Isotope, etc.),
+            // re-initialize those scripts here.
+            // E.g., if you're using a plugin:
+            // $('.grid').masonry();
+        }
+    };
+    xhttp.open("GET", url, true);
+    xhttp.send();
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Initial setup that needs to happen once the DOM is fully loaded
+    // initializeCards();
+});
+
+
+    function applyLayoutFixes() {
+        // Add flex utilities to the row to ensure proper alignment
+        var rows = document.querySelectorAll('.content-area .row');
+        rows.forEach(function(row) {
+            row.classList.add('d-flex', 'flex-wrap');
+        });
+
+        // Re-apply column classes to ensure proper grid layout
+        var cards = document.querySelectorAll('.content-area .card');
+        cards.forEach(function(card) {
+            var column = card.closest('.col-md-3, .col-md-6');
+            if (column) {
+                // Reset the column sizes
+                column.classList.add('col-md-3'); // Adjust this class as necessary
+            }
+        });
+
+        // Add any additional layout fixes that you find necessary here
+    }
+
+    // Run the layout fixes on initial load as well
+    document.addEventListener('DOMContentLoaded', applyLayoutFixes);
+
+    var totalexpense = {{totalexpense}}; // Ensure this is initialized with the correct value
+
+// Get the counter element
+var counterElement = document.getElementById("counter");
+
+// Ensure the counter element exists and start the animation
+if (counterElement) {
+    counterElement.innerText = "0.00"; // Initialize to zero
+    var duration = 2000; // Duration of the animation in milliseconds
+    var startTime = null;
+
+    // Function to update the counter
+    function updateCounter(timestamp) {
+        if (!startTime) startTime = timestamp; // Record the start time
+        var elapsedTime = timestamp - startTime; // Calculate elapsed time
+        var progress = elapsedTime / duration; // Progress ratio
+
+        if (progress < 1) {
+            var currentExpense = totalexpense * progress; // Calculate current value based on progress
+            counterElement.innerText = currentExpense.toFixed(2); // Update the counter element
+            requestAnimationFrame(updateCounter); // Continue the animation
+        } else {
+            counterElement.innerText = totalexpense.toFixed(2); // Ensure the final value is exactly totalexpense
+        }
+    }
+
+    // Start the animation
+    requestAnimationFrame(updateCounter);
+} else {
+    console.error("Counter element not found");
+}
+
+updateCounter();
+</script>
+
+   
+    
+</html>

@@ -52,19 +52,19 @@
         <div class="content-area">
             <div class="container-fluid">
                 <div class="row">
-                    <div class="col-md-3">
+                    <div class="col-md-4">
                         <div class="card custom-card-height">
                         <div class="card">
                             <div class="card-body">
                                 <h5 class="card-title">Total Expenses</h5>
                                 <!-- Include dynamic content for total expenses here -->
                                 
-                                <p class="card-text">Total expenses:$ {{totalexpense}}</p>
+                                <p class="card-text">Total expenses: $<span id="counter">0</span></p>
                             </div>
                         </div>
                         </div>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-4">
                         <div class="card">
                             <div class="card-body">
                                 <h5 class="card-title">Montlhy Expenses</h5>
@@ -73,7 +73,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-4">
                         <div class="card">
                             <div class="card-body">
                                 <h5 class="card-title">Top Category</h5>
@@ -82,16 +82,17 @@
                             </div>
                         </div>
                     </div>
+                    <!--
                     <div class="col-md-3">
                         <div class="card">
                             <div class="card-body">
                                 <h5 class="card-title">Budget Overview</h5>
-                                <!-- Include dynamic content for total expenses here -->
+                               
                                 
                                 <p class="card-text">Total expenses: $500</p>
                             </div>
                         </div>
-                    </div>
+                    </div>-->
                 </div>
                 
                 <div class="row mt-3">
@@ -169,6 +170,40 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Run the layout fixes on initial load as well
     document.addEventListener('DOMContentLoaded', applyLayoutFixes);
+
+    var totalexpense = {{totalexpense}}; // Ensure this is initialized with the correct value
+
+// Get the counter element
+var counterElement = document.getElementById("counter");
+
+// Ensure the counter element exists and start the animation
+if (counterElement) {
+    counterElement.innerText = "0.00"; // Initialize to zero
+    var duration = 2000; // Duration of the animation in milliseconds
+    var startTime = null;
+
+    // Function to update the counter
+    function updateCounter(timestamp) {
+        if (!startTime) startTime = timestamp; // Record the start time
+        var elapsedTime = timestamp - startTime; // Calculate elapsed time
+        var progress = elapsedTime / duration; // Progress ratio
+
+        if (progress < 1) {
+            var currentExpense = totalexpense * progress; // Calculate current value based on progress
+            counterElement.innerText = currentExpense.toFixed(2); // Update the counter element
+            requestAnimationFrame(updateCounter); // Continue the animation
+        } else {
+            counterElement.innerText = totalexpense.toFixed(2); // Ensure the final value is exactly totalexpense
+        }
+    }
+
+    // Start the animation
+    requestAnimationFrame(updateCounter);
+} else {
+    console.error("Counter element not found");
+}
+
+updateCounter();
 </script>
 
    
