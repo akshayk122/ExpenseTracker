@@ -44,7 +44,6 @@ def signup():
         password = request.form['password']
         confirmpassword = request.form['confirmpassword']
         role='user'
-        
         conn = sqlite3.connect('expense_tracker.db')
         c = conn.cursor()
         c.execute("SELECT * FROM users WHERE username = ?", (username,))
@@ -59,6 +58,32 @@ def signup():
         
         return render_template('index.html')
     return render_template('signup.html')
+
+
+@app.route('/addadmin', methods=['GET', 'POST'])
+def addadmin():
+    if request.method == 'POST':
+        email = request.form['email']
+        username = request.form['username']
+        firstname=request.form['firstname']
+        lastname=request.form['lastname']
+        phone=request.form['tel']
+        password = request.form['password']
+        confirmpassword = request.form['confirmpassword']
+        role='admin'
+        conn = sqlite3.connect('expense_tracker.db')
+        c = conn.cursor()
+        c.execute("SELECT * FROM users WHERE username = ?", (username,))
+        if c.fetchone():
+        # Username already exists, return an error message
+            flash("Signup failed. Please try again.")
+            return redirect(url_for('addadmin'))
+        else:
+            c.execute("INSERT INTO users (email,username,firstname,lastname,phone,password,role) VALUES (?, ?, ?, ?, ?, ?, ?)", (email,username,firstname,lastname,phone,password,role))
+            conn.commit()
+            conn.close()
+        return render_template('admindashboard.html')
+    return render_template('addadmin.html')
 
 @contextmanager
 def temporary_file(suffix=''):
@@ -200,9 +225,14 @@ def dashboard():
 def admindashboard():
     if 'username' in session:
         #read database data
-        allusers=fetch_total_expenses()
+        conn = sqlite3.connect('expense_tracker.db')  
+        cur = conn.cursor()
+        #cur.execute("SELECT id, amount, category, date FROM expense")  # Include id for delete/edit actions
+        cur.execute("SELECT  id,username FROM users")
+        users = cur.fetchall()
+        conn.close()
         #print(totalexpense)
-        response = make_response(render_template('admindashboard.html', username=session['username']))
+        response = make_response(render_template('admindashboard.html', username=session['username'],users=users))
         response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
         response.headers['Pragma'] = 'no-cache'
         response.headers['Expires'] = '0'
@@ -465,6 +495,7 @@ def adminprofile():
             phone=request.form['phone']
             password = request.form['password']
             conn = sqlite3.connect('expense_tracker.db')
+            print(session['userid'])
             cur = conn.cursor()
             conn.execute("UPDATE users SET email = ?, username = ?, firstname = ?,lastname = ?,phone = ?,password = ? WHERE id = ?", (email, username, firstname,lastname,phone,password,session['userid'],))
             conn.commit()

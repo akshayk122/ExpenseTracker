@@ -12,6 +12,11 @@
     <style>
      .custom-card-height {
     height: 400px; /* Change this value to your desired height */
+
+    h1 {
+        color: #137dee;
+        margin-bottom: 20px;
+    }
 }
     </style>
 </head>
@@ -24,7 +29,7 @@
                     <img src="{{url_for('static', filename='icons/dashboard.svg')}}" alt="Dashboard Icon" width="24" height="24">   Manage Users</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="adminprofile.html" onclick="loadPage('/adminprofile')"><img src="{{url_for('static', filename='icons/transactions.svg')}}" alt="Expense Icon" width="24" height="24">  Transactions</a>
+                <a class="nav-link" href="#" onclick="loadPage('/addadmin')"><img src="{{url_for('static', filename='icons/transactions.svg')}}" alt="Expense Icon" width="24" height="24">  Add Admin</a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="#" onclick="loadPage('/adminprofile')"><img src="{{url_for('static', filename='icons/profile1.svg')}}" alt="Dashboard Icon" width="26" height="26">    Profile</a>
@@ -42,17 +47,10 @@
         
         <div class="content-area">
             <div class="container mt-5">
-                <h2>Expenses</h2>
+                <h1 style="color: #137dee;">Users</h1>
                 <!-- Placeholder for Filter Implementation -->
                 <div class="filter-container mb-3">
                     <!-- Example: Filter by Category -->
-                    <label for="categoryFilter">Category:</label>
-                    <select id="categoryFilter" class="form-control">
-                        <option value="">All</option>
-                        {% for category in categories %}
-                            <option value="{{ category }}" {% if category == selected_category %}selected{% endif %}>{{ category }}</option>
-                        {% endfor %}
-                    </select>
                     
                 </div>
                 <div class="row">
@@ -60,24 +58,22 @@
                         <table class="table">
                             <thead>
                                 <tr>
-                                    <th scope="col">#</th>
-                                    <th scope="col">Amount</th>
-                                    <th scope="col">Category</th>
-                                    <th scope="col">Date</th>
+                                    <th scope="col">ID</th>
+                                    <th scope="col">User ID</th>
+                                    <th scope="col">User name</th>
                                     <th scope="col">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {% for expense in expenses %}
+                                {% for user in users %}
                             <tr>
                                 <th scope="row">{{ loop.index }}</th>
-                                <td>${{ expense[1] }}</td> <!-- Corrected Index for Amount -->
-                                <td>{{ expense[2] }}</td> <!-- Corrected Index for Category -->
-                                <td>{{ expense[3] }}</td> <!-- Corrected Index for Date -->
+                                <td>{{ user[0] }}</td> <!-- Corrected Index for Amount -->
+                                <td>{{ user[1] }}</td> <!-- Corrected Index for Category -->
                                 <td>
                                     <!-- Assuming you have 'edit' and 'delete' routes set up correctly -->
-                                    <a href="#" class="btn btn-sm btn-primary" onclick="loadPage('/edit/{{ expense[0] }}')">Edit</a>
-                                    <form action="#" method="post" style="display: inline;" onclick="loadPage('/delete/{{ expense[0]}}')" onsubmit="return confirm('Are you sure you want to delete this expense?');">
+                                    <a href="#" class="btn btn-sm btn-primary" onclick="loadPage('/edit/{{ user[0] }}')">Edit</a>
+                                    <form action="#" method="post" style="display: inline;" onclick="loadPage('/delete/{{ user[0]}}')" onsubmit="return confirm('Are you sure you want to delete this expense?');">
                                         <input type="submit" value="Delete" class="btn btn-sm btn-danger">
                                     </form>
                                     
@@ -144,42 +140,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Run the layout fixes on initial load as well
     document.addEventListener('DOMContentLoaded', applyLayoutFixes);
-
-    var totalexpense = {{totalexpense}}; // Ensure this is initialized with the correct value
-
-// Get the counter element
-var counterElement = document.getElementById("counter");
-
-// Ensure the counter element exists and start the animation
-if (counterElement) {
-    counterElement.innerText = "0.00"; // Initialize to zero
-    var duration = 2000; // Duration of the animation in milliseconds
-    var startTime = null;
-
-    // Function to update the counter
-    function updateCounter(timestamp) {
-        if (!startTime) startTime = timestamp; // Record the start time
-        var elapsedTime = timestamp - startTime; // Calculate elapsed time
-        var progress = elapsedTime / duration; // Progress ratio
-
-        if (progress < 1) {
-            var currentExpense = totalexpense * progress; // Calculate current value based on progress
-            counterElement.innerText = currentExpense.toFixed(2); // Update the counter element
-            requestAnimationFrame(updateCounter); // Continue the animation
-        } else {
-            counterElement.innerText = totalexpense.toFixed(2); // Ensure the final value is exactly totalexpense
-        }
-    }
-
-    // Start the animation
-    requestAnimationFrame(updateCounter);
-} else {
-    console.error("Counter element not found");
-}
-
-updateCounter();
 </script>
-
    
     
 </html>
