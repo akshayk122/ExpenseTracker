@@ -85,7 +85,7 @@ def addexpense():
             with temporary_file(suffix=os.path.splitext(file.filename)[1]) as temp_file_path:
                 file.save(temp_file_path)
                 data=sn.scan_image(temp_file_path)
-                print(data)
+                #print(data)
                 
         #file processing end
         #data=sn.scan_image(file)
@@ -158,7 +158,7 @@ def login():
                 #print(user)
                 session['username'] = user[3]
                 session['userid']=user[0]
-                return redirect(url_for('dashboard'))
+                return redirect(url_for('admindashboard'))
             else:
                 return render_template('login.html', error='Invalid username or password')
         elif role == 'user':
@@ -200,12 +200,9 @@ def dashboard():
 def admindashboard():
     if 'username' in session:
         #read database data
-        totalexpense=fetch_total_expenses()
-        monthexpense,topcategory,topamount=fetch_currentmonth_expenses()
-        actual=actual_expense_graph()
-        monthlyexpsense=monthly_expense_graph()
+        allusers=fetch_total_expenses()
         #print(totalexpense)
-        response = make_response(render_template('admindashboard.html', username=session['username'],totalexpense=totalexpense,monthexpense=monthexpense,actual=actual,monthlyexpsense=monthlyexpsense,topcategory=topcategory,topamount=topamount))
+        response = make_response(render_template('admindashboard.html', username=session['username']))
         response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
         response.headers['Pragma'] = 'no-cache'
         response.headers['Expires'] = '0'
@@ -404,6 +401,7 @@ def edit_expense(expense_id):
         conn.execute("UPDATE expense SET amount = ?, category = ?, date = ? WHERE id = ?", (amount, category, date,expense_id,))
         conn.commit()
         expenses = fetch_actual_expenses()
+        conn.close() 
         #return render_template('viewexpense.html', expenses=expenses)
         return redirect(url_for('dashboard'))
     else:
@@ -412,12 +410,12 @@ def edit_expense(expense_id):
         cur = conn.cursor()
         cur.execute("SELECT  id,amount, category, date FROM expense WHERE userid = ?", (session['userid'],))
         expense = cur.fetchone()
-        conn.close()
+        conn.close() 
         if expense:
             return render_template('editexpense.html', expense=expense)
         else:
             return 'Expense not found', 404
-        
+   
 
 @app.route('/delete/<int:expense_id>', methods=['GET','POST'])
 def delete_expense(expense_id):
@@ -448,14 +446,32 @@ def profile():
             password = request.form['password']
             conn = sqlite3.connect('expense_tracker.db')
             cur = conn.cursor()
-            cur.execute("SELECT id, amount, category, date FROM expense")
-            expenses = cur.fetchall()
-            conn.close()
-            print(expenses)
-            return render_template('profile.html')
+            conn.execute("UPDATE users SET email = ?, username = ?, firstname = ?,lastname = ?,phone = ?,password = ? WHERE id = ?", (email, username, firstname,lastname,phone,password,session['userid'],))
+            conn.commit()
+            conn.close() 
+            return redirect(url_for('dashboard'))
+            #return render_template('profile.html')
         else:
-            print('get')
             return render_template('profile.html')
+        
+
+@app.route('/adminprofile', methods=['GET','POST'])
+def adminprofile():
+        if  request.method == "POST":
+            email = request.form['email']
+            username = request.form['username']
+            firstname=request.form['firstname']
+            lastname=request.form['lastname']
+            phone=request.form['phone']
+            password = request.form['password']
+            conn = sqlite3.connect('expense_tracker.db')
+            cur = conn.cursor()
+            conn.execute("UPDATE users SET email = ?, username = ?, firstname = ?,lastname = ?,phone = ?,password = ? WHERE id = ?", (email, username, firstname,lastname,phone,password,session['userid'],))
+            conn.commit()
+            conn.close() 
+            return redirect(url_for('admindashboard'))
+        else:
+            return render_template('adminprofile.html')
 
 @app.route('/logout')
 def logout():

@@ -20,23 +20,14 @@
         <div class="brand">Expense Tracker</div>
         <ul class="nav flex-column">
             <li class="nav-item">
-                <a class="nav-link" href="/dashboard">
-                    <img src="{{url_for('static', filename='icons/dashboard.svg')}}" alt="Dashboard Icon" width="24" height="24">   Dashboard</a>
+                <a class="nav-link" href="/admindashboard">
+                    <img src="{{url_for('static', filename='icons/dashboard.svg')}}" alt="Dashboard Icon" width="24" height="24">   Manage Users</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="#" onclick="loadPage('/addexpense')"> <img src="{{url_for('static', filename='icons/manage-expense1.svg')}}" alt="Expense Icon" width="24" height="24">   Add Expense</a>
+                <a class="nav-link" href="adminprofile.html" onclick="loadPage('/adminprofile')"><img src="{{url_for('static', filename='icons/transactions.svg')}}" alt="Expense Icon" width="24" height="24">  Transactions</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="#" onclick="loadPage('/viewexpense')"><img src="{{url_for('static', filename='icons/transactions.svg')}}" alt="Expense Icon" width="24" height="24">  Transactions</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#" onclick="loadPage('/predict_expense')"><img src="{{url_for('static', filename='icons/prediction1.svg')}}" alt="Prediction Icon" width="24" height="24">    Prediction</a>
-            </li>
-            <!--<li class="nav-item">
-                <a class="nav-link" href="#" onclick="loadPage('/addexpense')"><img src="{{url_for('static', filename='icons/expense.svg')}}" alt="Expense Icon" width="24" height="24">Goals</a>
-            </li>-->
-            <li class="nav-item">
-                <a class="nav-link" href="#" onclick="loadPage('/profile')"><img src="{{url_for('static', filename='icons/profile1.svg')}}" alt="Dashboard Icon" width="26" height="26">    Profile</a>
+                <a class="nav-link" href="#" onclick="loadPage('/adminprofile')"><img src="{{url_for('static', filename='icons/profile1.svg')}}" alt="Dashboard Icon" width="26" height="26">    Profile</a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="/logout"><img src="{{url_for('static', filename='icons/logout.svg')}}" alt="Dashboard Icon" width="20" height="20">   Logout</a>
@@ -50,69 +41,52 @@
         </div>
         
         <div class="content-area">
-            <div class="container-fluid">
-                <div class="row">
-                    <div class="col-md-4">
-                        <div class="card custom-card-height">
-                        <div class="card">
-                            <div class="card-body">
-                                <h5 class="card-title">Total Expenses</h5>
-                                <!-- Include dynamic content for total expenses here -->
-                                
-                                <p class="card-text">Total expenses: $<span id="counter">0</span></p>
-                            </div>
-                        </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="card">
-                            <div class="card-body">
-                                <h5 class="card-title">Montlhy Expenses</h5>
-                                <!-- Include dynamic content for total expenses here -->
-                                <p class="card-text">Total expenses: $ {{monthexpense}}</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="card">
-                            <div class="card-body">
-                                <h5 class="card-title">Top Category</h5>
-                                <!-- Include dynamic content for total expenses here -->
-                                <p class="card-text">Total expenses: ${{topcategory}} Category :{{topamount}}</p>
-                            </div>
-                        </div>
-                    </div>
-                    <!--
-                    <div class="col-md-3">
-                        <div class="card">
-                            <div class="card-body">
-                                <h5 class="card-title">Budget Overview</h5>
-                               
-                                
-                                <p class="card-text">Total expenses: $500</p>
-                            </div>
-                        </div>
-                    </div>-->
+            <div class="container mt-5">
+                <h2>Expenses</h2>
+                <!-- Placeholder for Filter Implementation -->
+                <div class="filter-container mb-3">
+                    <!-- Example: Filter by Category -->
+                    <label for="categoryFilter">Category:</label>
+                    <select id="categoryFilter" class="form-control">
+                        <option value="">All</option>
+                        {% for category in categories %}
+                            <option value="{{ category }}" {% if category == selected_category %}selected{% endif %}>{{ category }}</option>
+                        {% endfor %}
+                    </select>
+                    
                 </div>
-                
-                <div class="row mt-3">
-                    <div class="col-md-6">
-                        <div class="card">
-                            <div class="card-body">
-                                <h5 class="card-title">Expense Categories</h5>
-                                <!-- Include dynamic content for graph 1 here -->
-                                <img src="data:image/png;base64,{{ actual }}" alt="Future Expenses Predictions">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="card">
-                            <div class="card-body">
-                                <h5 class="card-title">Monthly</h5>
-                                <!-- Include dynamic content for graph 2 here -->
-                                <img src="data:image/png;base64,{{ monthlyexpsense }}" alt="Future Expenses Predictions">
-                            </div>
-                        </div>
+                <div class="row">
+                    <div class="col">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th scope="col">#</th>
+                                    <th scope="col">Amount</th>
+                                    <th scope="col">Category</th>
+                                    <th scope="col">Date</th>
+                                    <th scope="col">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for expense in expenses %}
+                            <tr>
+                                <th scope="row">{{ loop.index }}</th>
+                                <td>${{ expense[1] }}</td> <!-- Corrected Index for Amount -->
+                                <td>{{ expense[2] }}</td> <!-- Corrected Index for Category -->
+                                <td>{{ expense[3] }}</td> <!-- Corrected Index for Date -->
+                                <td>
+                                    <!-- Assuming you have 'edit' and 'delete' routes set up correctly -->
+                                    <a href="#" class="btn btn-sm btn-primary" onclick="loadPage('/edit/{{ expense[0] }}')">Edit</a>
+                                    <form action="#" method="post" style="display: inline;" onclick="loadPage('/delete/{{ expense[0]}}')" onsubmit="return confirm('Are you sure you want to delete this expense?');">
+                                        <input type="submit" value="Delete" class="btn btn-sm btn-danger">
+                                    </form>
+                                    
+                                </td>
+                            </tr>
+                                  {% endfor %}
+        
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
