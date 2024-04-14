@@ -61,6 +61,7 @@
                                     <th scope="col">ID</th>
                                     <th scope="col">User ID</th>
                                     <th scope="col">User name</th>
+                                    <th scope="col">Role</th>
                                     <th scope="col">Actions</th>
                                 </tr>
                             </thead>
@@ -68,12 +69,13 @@
                                 {% for user in users %}
                             <tr>
                                 <th scope="row">{{ loop.index }}</th>
-                                <td>{{ user[0] }}</td> <!-- Corrected Index for Amount -->
-                                <td>{{ user[1] }}</td> <!-- Corrected Index for Category -->
+                                <td>{{ user[0] }}</td> 
+                                <td>{{ user[1] }}</td> 
+                                <td>{{ user[2] }}</td> 
                                 <td>
                                     <!-- Assuming you have 'edit' and 'delete' routes set up correctly -->
-                                    <a href="#" class="btn btn-sm btn-primary" onclick="loadPage('/edit/{{ user[0] }}')">Edit</a>
-                                    <form action="#" method="post" style="display: inline;" onclick="loadPage('/delete/{{ user[0]}}')" onsubmit="return confirm('Are you sure you want to delete this expense?');">
+                                    <a href="#" class="btn btn-sm btn-primary" onclick="loadPage('/edituser/{{ user[0] }}')">Edit</a>
+                                    <form action="#" method="post" style="display: inline;" onclick="loadPage('/deleteuser/{{ user[0]}}')" onsubmit="return confirm('Are you sure you want to delete this expense?');">
                                         <input type="submit" value="Delete" class="btn btn-sm btn-danger">
                                     </form>
                                     

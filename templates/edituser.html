@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Expense</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+            padding: 90px;
+            overflow-y: hidden;
+        }
+
+        h1 {
+            color: #007bff;
+            margin-bottom: 20px;
+        }
+
+        form {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        label {
+            font-weight: bold;
+            color: #555;
+        }
+
+        .button-container {
+         text-align: center;
+        }
+
+        input[type="text"],
+        select,
+        input[type="file"],
+        input[type="date"],   
+        input[type="number"]     
+        {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        input[type="submit"],
+        input[type="reset"] {
+            background-color: #007bff;
+            color: #fff;
+            cursor: pointer;
+            width: 15%;
+            padding: 10px;
+            margin-top: 20px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            display: inline-block;
+        }
+
+    input[type="submit"]:hover,
+    input[type="reset"]:hover {
+        background-color: #0056b3;
+    }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Edit Expense</h2>
+        <form  action="{{ url_for('edituser', userid=userdata['id']) }}" method="POST">
+            <label for="id">UserID:</label>
+            <input type="text" id="id" name="id" value="{{ userdata['id'] }}" required>
+            
+            <label for="status">Status:</label>
+            <select id="status" name="status" required>
+                <option value="1" {% if userdata['isactive'] == '1' %}selected{% endif %}>Active</option>
+                <option value="0" {% if userdata['isactive'] == '0' %}selected{% endif %}>InActive</option>
+                <!-- Add more options as needed -->
+            </select>
+            <input type="submit" value="Update">
+        </form>
+    </div>
+</body>
+<script>
+    document.getElementById('editExpenseForm').addEventListener('submit', function(e) {
+        e.preventDefault(); // Prevent default form submission
+        
+        const form = e.target;
+        const url = form.action;
+        const formData = new FormData(form);
+        
+        fetch(url, {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.text())
+        .then(html => {
+            // Assuming the response is the HTML you want to display
+            document.querySelector('.content-area').innerHTML = html;
+            
+            // Manually trigger a reflow if needed
+            const contentArea = document.querySelector('.content-area');
+            contentArea.style.display = 'none';
+            contentArea.offsetHeight; // Trigger reflow
+            contentArea.style.display = '';
+        })
+        .catch(error => console.error('Error:', error));
+    });
+    </script>
+    
+</html>

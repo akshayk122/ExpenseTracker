@@ -171,27 +171,29 @@ def login():
         username = request.form['username']
         password = request.form['password']
         role = request.form['role']
+        isactive='1'
 
         conn = sqlite3.connect('expense_tracker.db')
         c = conn.cursor()
         
         if role == 'admin':
             #redirect admin dashboard
-            c.execute("SELECT * FROM users WHERE username = ? AND password = ? and role = ? ", (username, password,role))
-            user = c.fetchone()
-            if user:
+            c.execute("SELECT * FROM users WHERE username = ? AND password = ? and role = ? AND isactive= ? ", (username, password,role,isactive))
+            adminuser = c.fetchone()
+            print(adminuser)
+            if adminuser:
                 #print(user)
-                session['username'] = user[3]
-                session['userid']=user[0]
+                session['username'] = adminuser[3]
+                session['userid']=adminuser[0]
                 return redirect(url_for('admindashboard'))
             else:
                 return render_template('login.html', error='Invalid username or password')
         elif role == 'user':
             #redirect user dashboard
-            c.execute("SELECT * FROM users WHERE username = ? AND password = ? and role = ? ", (username, password,role))
+            c.execute("SELECT * FROM users WHERE username = ? AND password = ? and role = ? AND isactive= ? ", (username, password,role,isactive))
             user = c.fetchone()
             if user:
-                #print(user)
+                print(user)
                 session['username'] = user[3]
                 session['userid']=user[0]
                 return redirect(url_for('dashboard'))
@@ -228,7 +230,7 @@ def admindashboard():
         conn = sqlite3.connect('expense_tracker.db')  
         cur = conn.cursor()
         #cur.execute("SELECT id, amount, category, date FROM expense")  # Include id for delete/edit actions
-        cur.execute("SELECT  id,username FROM users")
+        cur.execute("SELECT  id,username,role FROM users")
         users = cur.fetchall()
         conn.close()
         #print(totalexpense)
@@ -464,6 +466,33 @@ def delete_expense(expense_id):
     #return render_template('viewexpense.html', expenses=expenses,categories=categories)
     return redirect(url_for('viewexpense'))
 
+@app.route('/edituser/<int:userid>', methods=['GET', 'POST'])
+def edituser(userid):
+    if request.method == 'POST':
+        conn = sqlite3.connect('expense_tracker.db')
+        # Process the form data and update the expense in the database
+        user_id=request.form['id']
+        activeflag = request.form['status']
+        print(user_id)
+        # Assume conn is your database connection and you've imported necessary modules
+        conn.execute("UPDATE users SET isactive = ? WHERE id = ?", (activeflag,user_id,))
+        print('test11')
+        conn.commit()
+        expenses = fetch_actual_expenses()
+        conn.close() 
+        #return render_template('viewexpense.html', expenses=expenses)
+        return redirect(url_for('admindashboard'))
+    else:
+        conn = sqlite3.connect('expense_tracker.db')
+        conn.row_factory = sqlite3.Row  # This enables column access by name
+        cur = conn.cursor()
+        cur.execute("SELECT  id,isactive FROM users where id= ?",(userid,))
+        userdata = cur.fetchone()
+        conn.close() 
+        if userdata:
+            return render_template('edituser.html', userdata=userdata)
+        else:
+            return 'Expense not found', 404
 
 @app.route('/profile', methods=['GET','POST'])
 def profile():
