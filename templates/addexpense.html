@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <title>Add Expense</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             background-color: #f8f9fa;
             padding: 30px;
-            overflow-y: hidden;
         }
 
         h1 {
@@ -18,7 +18,6 @@
         }
 
         form {
-            background-color: #fff;
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
@@ -30,21 +29,19 @@
         }
 
         .button-container {
-         text-align: center;
+            text-align: center;
         }
 
         input[type="text"],
         select,
         input[type="file"],
-        input[type="date"],   
-        input[type="number"]     
-        {
+        input[type="date"],
+        input[type="number"] {
             width: 100%;
             padding: 10px;
             margin-bottom: 20px;
             border: 1px solid #ccc;
             border-radius: 4px;
-            box-sizing: border-box;
         }
 
         input[type="submit"],
@@ -52,49 +49,65 @@
             background-color: #007bff;
             color: #fff;
             cursor: pointer;
-            width: 15%;
             padding: 10px;
-            margin-top: 20px;
             border: 1px solid #ccc;
             border-radius: 4px;
+            width: 40%;
+            display: inline-block; /* Keeps buttons in-line */
             box-sizing: border-box;
-            display: inline-block;
         }
 
-    input[type="submit"]:hover,
-    input[type="reset"]:hover {
-        background-color: #0056b3;
-    }
+        input[type="submit"]:hover,
+        input[type="reset"]:hover {
+            background-color: #0056b3;
+        }
     </style>
 </head>
 <body>
-    <h1>Add Expense</h1>
-    <form action="/addexpense" method="POST" enctype="multipart/form-data">
-        <label for="amount">Amount:</label>
-        <input type="number" id="amount" name="amount"  required>
-        <br><br>
-        <label for="category">Category:</label>
-        <select id="category" name="category" required>
-            <option value="food">Food</option>
-            <option value="transport">Transport</option>
-            <option value="shopping">Shopping</option>
-            <option value="utilities">Utilities</option>
-            <!-- Add more options as needed -->
-        </select>
-        <br><br>
-        <label for="bill">Upload Bill Image:</label>
-        <input type="file" id="bill" name="bill" accept="image/*">
-        <br><br>
-        <label for="description">description:</label>
-        <input type="text" class="form-control custom-input" id="description" name="description">
-        <br>
-        <label for="date">Date:</label>
-        <input type="date" id="date" name="date" required>
-        <br><br>
-        <div class="button-container">
-            <input type="submit" value="Add">
-            <input type="reset" value="Reset">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h1>Add Expense</h1>
+                        <form action="/addexpense" method="POST" enctype="multipart/form-data">
+                            <label for="amount">Amount:</label>
+                            <input type="number" id="amount" name="amount"  required>
+                            <br><br>
+                            <label for="category">Category:</label>
+                            <select id="category" name="category" required>
+                                <option value="food">Food</option>
+                                <option value="transport">Transport</option>
+                                <option value="shopping">Shopping</option>
+                                <option value="utilities">Utilities</option>
+                            </select>
+                            <br><br>
+                            <label for="bill">Upload Bill Image:</label>
+                            <input type="file" id="bill" name="bill" accept="image/*">
+                            <br><br>
+                            <label for="description">description:</label>
+                            <input type="text" class="form-control custom-input" id="description" name="description">
+                            <br>
+                            <label for="date">Date:</label>
+                            <input type="date" id="date" name="date" required>
+                            <br><br>
+                            <div class="button-container">
+                                <input type="submit" value="Add">
+                                <input type="reset" value="Reset">
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <!-- Display scanned data or other information here -->
+                    </div>
+                </div>
+            </div>
         </div>
-    </form>
+    </div>
 </body>
 </html>

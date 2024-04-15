@@ -311,7 +311,7 @@ def predict_and_plot_expenses():
     plt.bar(categories, predictions, color='salmon')
     plt.xlabel('Categories')
     plt.ylabel('Expenses')
-    plt.title('Future Expenses Predictions')
+    plt.title('Future Expenses ')
 
     # Saving plot to a bytes object
     buffer = BytesIO()
@@ -323,8 +323,6 @@ def predict_and_plot_expenses():
     plot_data = base64.b64encode(buffer.read()).decode()
 
     return render_template('prediction.html', plot_data=plot_data)
-
-
 
 
 def fetch_actual_expenses():
