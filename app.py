@@ -17,8 +17,12 @@ import tempfile
 import os
 import time
 from contextlib import contextmanager
-
-
+import pandas as pd
+import numpy as np
+from sklearn.linear_model import LinearRegression
+import matplotlib.pyplot as plt
+from pmdarima import auto_arima
+from statsmodels.tsa.arima.model import ARIMA
 
 
 
@@ -270,6 +274,58 @@ def predict_expense():
     # Converting bytes object to base64 encoded string
     plot_data = base64.b64encode(buffer.read()).decode()
     return render_template('prediction.html', plot_data=plot_data)
+
+@app.route('/predict_future_expense')
+def predict_and_plot_expenses():
+    conn = sqlite3.connect('expense_tracker.db')  
+    cur = conn.cursor()
+    categories = ['food', 'transport', 'shopping', 'utilities']
+    predictions = []
+
+    for category in categories:
+        cur.execute("SELECT amount, date FROM expense WHERE userid = ? AND category = ?", (session['userid'], category))
+        data = cur.fetchall()
+
+        if not data:
+            predictions.append(0)
+            continue
+
+        df = pd.DataFrame(data, columns=['amount', 'date'])
+        df['date'] = pd.to_datetime(df['date'])
+        df.sort_values('date', inplace=True)
+        df['month_index'] = range(len(df))
+
+        model = LinearRegression()
+        X = df[['month_index']]
+        y = df['amount']
+        model.fit(X, y)
+
+        next_month_index = df['month_index'].max() + 1
+        predicted_expense = model.predict([[next_month_index]])
+        predictions.append(predicted_expense[0])
+
+    conn.close()
+
+    # Plotting the predicted expenses
+    plt.figure(figsize=(6, 6))
+    plt.bar(categories, predictions, color='salmon')
+    plt.xlabel('Categories')
+    plt.ylabel('Expenses')
+    plt.title('Future Expenses Predictions')
+
+    # Saving plot to a bytes object
+    buffer = BytesIO()
+    plt.savefig(buffer, format='png')
+    plt.close()  # Ensure to close the plot to free up memory
+    buffer.seek(0)
+
+    # Converting bytes object to base64 encoded string
+    plot_data = base64.b64encode(buffer.read()).decode()
+
+    return render_template('prediction.html', plot_data=plot_data)
+
+
+
 
 def fetch_actual_expenses():
     conn = sqlite3.connect('expense_tracker.db')  
