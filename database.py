@@ -18,7 +18,17 @@ def init_db():
                  description TEXT,
                  date DATE NOT NULL,
                  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)''')
-
+    
+    c.execute('''CREATE TABLE IF NOT EXISTS budget (
+                    user_id INTEGER NOT NULL,
+                    month INTEGER NOT NULL,
+                    year INTEGER NOT NULL,
+                    budget_amount DECIMAL(10, 2) NOT NULL,
+                    PRIMARY KEY (user_id, month, year)
+                )''')
+    
+ 
+    
     conn.commit()
     conn.close()
 

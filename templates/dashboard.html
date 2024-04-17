@@ -86,9 +86,10 @@
                         <div class="card">
                             <div class="card-body">
                                 <h5 class="card-title">Budget Overview</h5>
-                               
-                                
-                                <p class="card-text">Total expenses: $500</p>
+                                <div class="form-group">
+                                    <label for="totalBudget">Month : {{month_name}}</label>
+                                    <input type="text" id="totalBudget" name="totalBudget" class="form-control" value="{{ budgetdata }}"  onmouseout="updateExpenses(this.value)">
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -118,6 +119,7 @@
         </div>
     </div>
 </body>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script>
     function loadPage(url) {
     var xhttp = new XMLHttpRequest();
@@ -203,6 +205,25 @@ if (counterElement) {
 }
 
 updateCounter();
+
+function updateExpenses() {
+        var expensesValue = document.getElementById('totalBudget').value;
+        $.ajax({
+            url: '/budgetupdate',
+            method: 'POST',
+            data: {
+                totalBudget: expensesValue,
+                // Include CSRF token if needed here
+            },
+            success: function(response) {
+                console.log('Update successful');
+            },
+            error: function(error) {
+                console.log('Error updating:', error);
+            }
+        });
+    }
+
 </script>
 
    

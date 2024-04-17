@@ -1,3 +1,4 @@
+import calendar
 from flask import Flask, render_template, request, redirect, url_for, session,make_response,flash
 import sqlite3
 import database as db
@@ -184,7 +185,7 @@ def login():
             #redirect admin dashboard
             c.execute("SELECT * FROM users WHERE username = ? AND password = ? and role = ? AND isactive= ? ", (username, password,role,isactive))
             adminuser = c.fetchone()
-            print(adminuser)
+            #print(adminuser)
             if adminuser:
                 #print(user)
                 session['username'] = adminuser[3]
@@ -197,7 +198,7 @@ def login():
             c.execute("SELECT * FROM users WHERE username = ? AND password = ? and role = ? AND isactive= ? ", (username, password,role,isactive))
             user = c.fetchone()
             if user:
-                print(user)
+                #print(user)
                 session['username'] = user[3]
                 session['userid']=user[0]
                 return redirect(url_for('dashboard'))
@@ -218,8 +219,12 @@ def dashboard():
         monthexpense,topcategory,topamount=fetch_currentmonth_expenses()
         actual=actual_expense_graph()
         monthlyexpsense=monthly_expense_graph()
+        budgetdata=fetch_budget_data()
+        month_num=budgetdata[1]
+        month_name = calendar.month_name[month_num]
+        #print(budgetdata)
         #print(totalexpense)
-        response = make_response(render_template('dashboard.html', username=session['username'],totalexpense=totalexpense,monthexpense=monthexpense,actual=actual,monthlyexpsense=monthlyexpsense,topcategory=topcategory,topamount=topamount))
+        response = make_response(render_template('dashboard.html', username=session['username'],totalexpense=totalexpense,monthexpense=monthexpense,actual=actual,monthlyexpsense=monthlyexpsense,topcategory=topcategory,topamount=topamount,budgetdata=budgetdata[3],month_name=month_name))
         response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
         response.headers['Pragma'] = 'no-cache'
         response.headers['Expires'] = '0'
@@ -324,6 +329,18 @@ def predict_and_plot_expenses():
 
     return render_template('prediction.html', plot_data=plot_data)
 
+
+def fetch_budget_data():
+    conn = sqlite3.connect('expense_tracker.db')  
+    cur = conn.cursor()
+    #cur.execute("SELECT id, amount, category, date FROM expense")  # Include id for delete/edit actions
+    current_date = datetime.now()
+    month = current_date.month
+    year = current_date.year
+    cur.execute("SELECT   user_id, month, year, budget_amount  FROM budget WHERE user_id = ? AND month = ? AND year = ?", (session['userid'],month,year,))
+    budget = cur.fetchone()
+    conn.close()
+    return budget
 
 def fetch_actual_expenses():
     conn = sqlite3.connect('expense_tracker.db')  
@@ -527,7 +544,7 @@ def edituser(userid):
         # Process the form data and update the expense in the database
         user_id=request.form['id']
         activeflag = request.form['status']
-        print(user_id)
+        #print(user_id)
         # Assume conn is your database connection and you've imported necessary modules
         conn.execute("UPDATE users SET isactive = ? WHERE id = ?", (activeflag,user_id,))
         print('test11')
@@ -547,6 +564,44 @@ def edituser(userid):
             return render_template('edituser.html', userdata=userdata)
         else:
             return 'Expense not found', 404
+        
+
+@app.route('/deleteuser/<int:userid>', methods=['GET', 'POST'])
+def deleteuser(userid):
+    if request.method != 'POST':
+        print('delete user in post')
+        conn = sqlite3.connect('expense_tracker.db')
+        cur = conn.cursor()
+        cur.execute("DELETE FROM users where id= ?",(userid,))
+        print('Delete')
+        conn.commit()
+        conn.close() 
+        #return render_template('viewexpense.html', expenses=expenses)
+        return redirect(url_for('admindashboard'))
+    else:
+         return redirect(url_for('admindashboard'))
+
+
+@app.route('/budgetupdate',methods=['GET', 'POST'])
+def budgetupdate():
+    conn = sqlite3.connect('expense_tracker.db')
+    cursor = conn.cursor()
+    new_budget = request.form['totalBudget']
+    current_date = datetime.now()
+    month = current_date.month
+    year = current_date.year
+    sql = '''
+    INSERT INTO budget (user_id, month, year, budget_amount)
+    VALUES (?, ?, ?, ?)
+    ON CONFLICT(user_id, month, year) DO UPDATE SET
+    budget_amount = excluded.budget_amount
+    WHERE user_id = ? AND month = ? AND year = ?
+    '''
+    cursor.execute(sql, (session['userid'], month, year, new_budget, session['userid'], month, year))
+    print('budget')
+    conn.commit()
+    conn.close()
+    return redirect(url_for('dashboard'))
 
 @app.route('/profile', methods=['GET','POST'])
 def profile():
@@ -578,7 +633,7 @@ def adminprofile():
             phone=request.form['phone']
             password = request.form['password']
             conn = sqlite3.connect('expense_tracker.db')
-            print(session['userid'])
+            #print(session['userid'])
             cur = conn.cursor()
             conn.execute("UPDATE users SET email = ?, username = ?, firstname = ?,lastname = ?,phone = ?,password = ? WHERE id = ?", (email, username, firstname,lastname,phone,password,session['userid'],))
             conn.commit()
