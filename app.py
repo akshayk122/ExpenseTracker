@@ -173,9 +173,6 @@ def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in {'png', 'jpg', 'jpeg', 'gif'}
 
 def process_extracted_text(text):
-    # Define a regular expression pattern to match the total amount
-    # This pattern assumes the total amount is preceded by "Total" and followed by a number
-    # You may need to adjust this pattern based on the format of your bills/receipts
     pattern = r'Total:?\s*\$?(\d+\.\d{2})'
 
     # Search for the pattern in the extracted text
@@ -357,7 +354,6 @@ def predict_and_plot_expenses():
 def fetch_budget_data():
     conn = sqlite3.connect('expense_tracker.db')  
     cur = conn.cursor()
-    #cur.execute("SELECT id, amount, category, date FROM expense")  # Include id for delete/edit actions
     current_date = datetime.now()
     month = current_date.month
     year = current_date.year
@@ -369,7 +365,6 @@ def fetch_budget_data():
 def fetch_actual_expenses():
     conn = sqlite3.connect('expense_tracker.db')  
     cur = conn.cursor()
-    #cur.execute("SELECT id, amount, category, date FROM expense")  # Include id for delete/edit actions
     cur.execute("SELECT  id,amount, category, date FROM expense WHERE userid = ?", (session['userid'],))
     expenses = cur.fetchall()
     conn.close()
@@ -479,7 +474,6 @@ def monthly_expense_graph():
     plt.savefig(buffer, format='png')
     buffer.seek(0)
 
-    # Converting bytes object to base64 encoded string
     actual_mplot_data = base64.b64encode(buffer.read()).decode()
     return actual_mplot_data
 
@@ -555,8 +549,6 @@ def delete_expense(expense_id):
     cur.execute("DELETE FROM expense WHERE id = ?",(expense_id,))
     conn.commit()
     conn.close()
-    # Fetch the updated list of expenses or redirect to the main view
-    # Assuming there's a function or route that shows all expenses
     cur.execute("SELECT DISTINCT category FROM expense")
     categories = [row['category'] for row in cur.fetchall()]
     expenses = fetch_actual_expenses()
