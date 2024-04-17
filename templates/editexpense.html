@@ -78,6 +78,8 @@
             <select id="category" name="category" required>
                 <option value="food" {% if expense['category'] == 'food' %}selected{% endif %}>Food</option>
                 <option value="transport" {% if expense['category'] == 'transport' %}selected{% endif %}>Transport</option>
+                <option value="food" {% if expense['category'] == 'shopping' %}selected{% endif %}>Shopping</option>
+                <option value="transport" {% if expense['category'] == 'utilities' %}selected{% endif %}>Utilities</option>
                 <!-- Add more options as needed -->
             </select>
             

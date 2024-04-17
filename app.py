@@ -87,7 +87,8 @@ def addadmin():
             c.execute("INSERT INTO users (email,username,firstname,lastname,phone,password,role) VALUES (?, ?, ?, ?, ?, ?, ?)", (email,username,firstname,lastname,phone,password,role))
             conn.commit()
             conn.close()
-        return render_template('admindashboard.html')
+        #return render_template('admindashboard.html')
+        return redirect(url_for('addadmin'))
     return render_template('addadmin.html')
 
 @contextmanager
@@ -109,8 +110,8 @@ def addexpense():
         date=request.form['date']
         file = request.files['bill']
         #file processing block
-        if file.filename == '':
-            return 'No selected file'
+        #if file.filename == '':
+        #    return 'No selected file'
         if file:
             with temporary_file(suffix=os.path.splitext(file.filename)[1]) as temp_file_path:
                 file.save(temp_file_path)
@@ -236,11 +237,18 @@ def dashboard():
         actual=actual_expense_graph()
         monthlyexpsense=monthly_expense_graph()
         budgetdata=fetch_budget_data()
-        month_num=budgetdata[1]
+        if budgetdata is not None:
+            month_num = budgetdata[1]
+            budgetdatavalue=budgetdata[3]
+        else:
+            month_num= 4
+            budgetdatavalue=500
+            print(month_num)
+
         month_name = calendar.month_name[month_num]
         #print(budgetdata)
         #print(totalexpense)
-        response = make_response(render_template('dashboard.html', username=session['username'],totalexpense=totalexpense,monthexpense=monthexpense,actual=actual,monthlyexpsense=monthlyexpsense,topcategory=topcategory,topamount=topamount,budgetdata=budgetdata[3],month_name=month_name))
+        response = make_response(render_template('dashboard.html', username=session['username'],totalexpense=totalexpense,monthexpense=monthexpense,actual=actual,monthlyexpsense=monthlyexpsense,topcategory=topcategory,topamount=topamount,budgetdata=budgetdatavalue,month_name=month_name))
         response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
         response.headers['Pragma'] = 'no-cache'
         response.headers['Expires'] = '0'
@@ -504,6 +512,7 @@ def show_expenses():
     cur = conn.cursor()
     cur.execute("SELECT DISTINCT category FROM expense")
     categories = [row['category'] for row in cur.fetchall()]
+    #print(expenses)
     return render_template('viewexpense.html', expenses=expenses,categories=categories)
 
 
@@ -516,6 +525,7 @@ def edit_expense(expense_id):
         amount = request.form['amount']
         category = request.form['category']
         date = request.form['date']
+        print(category,expense_id,amount)
         # Assume conn is your database connection and you've imported necessary modules
         conn.execute("UPDATE expense SET amount = ?, category = ?, date = ? WHERE id = ?", (amount, category, date,expense_id,))
         conn.commit()

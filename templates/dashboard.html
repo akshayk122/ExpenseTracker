@@ -279,6 +279,10 @@ function updateUIWithItems(data) {
     const tax = data.tax || 0;  // Default to 0 if tax is not specified
     const total = data.total || (subtotal + tax);  // Calculate total if not specified
 
+    const amountInput = document.getElementById('amount');
+    amountInput.value = total.toFixed(2);
+
+
     // Append the subtotal at the end
     const subtotalLi = document.createElement('li');
     subtotalLi.className = 'list-group-item';
