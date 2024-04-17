@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<style>
+    .header {
+        text-align: center;
+        padding-top: 20px;
+        color: cadetblue;
+        background-color: black;
+        border-color: white;
+        border: 77px;
+        padding-bottom: 10px;
+    }
+    .container {
+        max-width: 400px; /* Reduced width */
+        margin: 0 auto; /* Centering */
+        padding-top: 50px; /* Adjusted padding */
+        position: relative; /* Positioning context for the gif div */
+    }
+    .gif-container {
+        position: absolute;
+        top: 65%;
+        left: -350px; /* Adjust the distance from the form */
+        transform: translateY(-50%);
+        z-index: 1;
+    }
+</style>
+<body class="bg-light">
+    <header class="header">
+        <h1>Smart Expense Tracker</h1>
+    </header>
+    <div class="container mt-5">
+        <div class="gif-container">
+            <img src="../static/gif/login.gif" alt="GIF Image" width="300">
+        </div>
+        <h1>Login</h1>
+        {% if error %}
+            <p style="color: red;">{{ error }}</p>
+        {% endif %}
+        <form action="{{ url_for('login') }}" method="POST">
+            <div class="form-group">
+                <label for="username">Username:</label>
+                <input type="text" class="form-control custom-input" id="username" name="username" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Password:</label>
+                <input type="password" class="form-control custom-input" id="password" name="password" required>
+            </div>
+            <div class="form-group">
+                <label>
+                    <input type="radio" id="userRole" name="role" value="user" checked>
+                    &nbsp; User
+                </label>
+                <label>
+                    <input type="radio" id="adminRole" name="role" value="admin">
+                    &nbsp; Admin
+                </label>
+            </div>            
+            <button type="submit" class="btn btn-primary">Login</button>
+        </form>
+    </div>
+</body>
+</html>

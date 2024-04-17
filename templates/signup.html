@@ -23,13 +23,27 @@
         position: relative;
         padding-bottom: 20px; /* Positioning context for the gif div */
     }
+    .background-container {
+        position: absolute;
+        top: 80px;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        /* background-color: #83cbce; */
+        background-image: url('../static/main1.jpg');
+        background-size: cover;
+        filter: blur(90px);
+        z-index: -1;
+    }
 </style>
 <body class="bg-light">
     <header class="header">
         <h1>Smart Expense Tracker</h1>
     </header>
-    <div class="container mt-5">
-        <h1>Signup</h1>
+    
+    <div class="background-container"></div> <!-- Background image container -->
+    <div class="container mt-3">
+        <h1 style="color: white;">Signup</h1>
         <form id="signupForm" action="{{ url_for('signup') }}" method="POST">
             <div class="form-group">
                 <label for="firstname">First Name:</label>

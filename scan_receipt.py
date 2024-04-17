@@ -12,5 +12,5 @@ def scan_image(imag):
     #pprint.pprint(jsondata)
     total = jsondata.get('total', 'Total not found')
     category = jsondata.get('category', 'Category not found')
-    return total,category
+    return total,category,jsondata
 

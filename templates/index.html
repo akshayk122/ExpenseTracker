@@ -39,7 +39,7 @@
             height: 100%;
             background-image: url('../static/main1.jpg');
             background-size: cover;
-            filter: blur(5px);
+            filter: blur(90px);
             z-index: -1;
         }
         .container {
@@ -51,17 +51,31 @@
             padding-top: 10px;
             z-index: 1;
         }
-        .lead {
-            margin-bottom: 15px;
-            margin-top: 30px;
+        h1 span {
+            color: transparent;
+            white-space: nowrap;
+            overflow: hidden;
+            border-right: .15em solid orange;
+            animation: typing 3.5s steps(40, end), blink-caret .75s step-end infinite;
         }
         .btn {
             margin-top: 20px;
         }
-        .info-text {
-            color: #333333; /* Dark Gray */
-            font-size: 18px;
-            margin-bottom: 30px;
+        @keyframes typing {
+            from {
+                width: 0
+            }
+            to {
+                width: 100%
+            }
+        }
+        @keyframes blink-caret {
+            from, to {
+                border-color: transparent
+            }
+            50% {
+                border-color: orange
+            }
         }
     </style>
 </head>
@@ -72,9 +86,10 @@
     <div class="main-container">
         <div class="background-image"></div>
         <div class="container">
-            <h1 style="font-weight: bolder;">Welcome to Expense Tracker</h1>
+            <h1 style="font-weight: bolder;"><span style="color: black;">Welcome to Expense Tracker...!</span></h1>
             <p class="lead" style="color:white">Track your expenses easily!</p>
-            <p class="info-text" style="color:white">The Expense Tracker application offers a comprehensive set of features designed to streamline and enhance the management of personal finances. With its user-friendly interface and robust functionality, Expense Tracker empowers users to take control of their spending and achieve their financial goals with ease.</p>
+            <p class="info-text" style="color:white">Smart Expense Tracker is an innovative mobile application that combines powerful picture recognition, data analytics, and budgeting capabilities to revolutionize personal money management</p>
+            <p class="info-text" style="color:white">By taking photographs of invoices and receipts, the program provides users with a simple and effective way to manage their spending. It automates expense computation, gives real-time updates, and provides detailed monthly spending breakdown, allowing customers to make informed financial decisions.</p>
             <p class="info-text" style="color:white">Experience Expense Tracker Application</p>
             <!-- <div class="image-section">
                 <img src="../static/main.jpg" alt="Expense Tracker Image" class="img-fluid">
@@ -83,5 +98,22 @@
             <a class="btn btn-success" href="{{ url_for('login') }}">Login</a>
         </div>
     </div>
+
+    <script>
+        // JavaScript to reveal text gradually
+        document.addEventListener('DOMContentLoaded', function () {
+            const revealText = document.querySelectorAll('h1 span');
+            revealText.forEach((text) => {
+                const textContent = text.textContent;
+                text.textContent = '';
+                let index = 0;
+                const interval = setInterval(() => {
+                    text.textContent += textContent[index];
+                    index++;
+                    if (index === textContent.length) clearInterval(interval);
+                }, 100); // Adjust typing speed here (milliseconds)
+            });
+        });
+    </script>
 </body>
 </html>

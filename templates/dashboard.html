@@ -24,7 +24,7 @@
                     <img src="{{url_for('static', filename='icons/dashboard.svg')}}" alt="Dashboard Icon" width="24" height="24">   Dashboard</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="#" onclick="loadPage('/addexpense')"> <img src="{{url_for('static', filename='icons/manage-expense1.svg')}}" alt="Expense Icon" width="24" height="24">   Add Expense</a>
+                <a class="nav-link" href="#" onclick="loadPage('/addexpense')"> <img src="{{url_for('static', filename='icons/manage-expense1.svg')}}" alt="Expense Icon" width="24" height="24"> Manage Expense</a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="#" onclick="loadPage('/viewexpense')"><img src="{{url_for('static', filename='icons/transactions.svg')}}" alt="Expense Icon" width="24" height="24">  Transactions</a>
@@ -59,7 +59,7 @@
                                 <h5 class="card-title">Total Expenses</h5>
                                 <!-- Include dynamic content for total expenses here -->
                                 
-                                <p class="card-text">Total expenses: $<span id="counter">0</span></p>
+                                <p class="card-text">Total Expenses: $<span id="counter">0</span></p>
                             </div>
                         </div>
                         </div>
@@ -67,9 +67,9 @@
                     <div class="col-md-3">
                         <div class="card">
                             <div class="card-body">
-                                <h5 class="card-title">Montlhy Expenses</h5>
+                                <h5 class="card-title">Monthly Expenses</h5>
                                 <!-- Include dynamic content for total expenses here -->
-                                <p class="card-text">Total expenses: $ {{monthexpense}}</p>
+                                <p class="card-text">Monthly Expenses: $ {{monthexpense}}</p>
                             </div>
                         </div>
                     </div>
@@ -78,7 +78,7 @@
                             <div class="card-body">
                                 <h5 class="card-title">Top Category</h5>
                                 <!-- Include dynamic content for total expenses here -->
-                                <p class="card-text">Total expenses: ${{topcategory}} Category :{{topamount}}</p>
+                                <p class="card-text">Total Expenses: ${{topcategory}} Category :{{topamount}}</p>
                             </div>
                         </div>
                     </div>
@@ -223,6 +223,80 @@ function updateExpenses() {
             }
         });
     }
+
+    function readbill() {
+    console.log("Calling /read_expense");
+    let fileInput = document.getElementById('bill'); // Ensure this is the correct ID for your file input
+    let formData = new FormData();
+
+    // Check if a file is selected
+    if (fileInput.files.length > 0) {
+        formData.append('bill', fileInput.files[0]); // Match the key expected by Flask
+    } else {
+        alert('Please select a file to upload.');
+        return; // Exit the function if no file is selected
+    }
+
+    fetch('/read_bill', { // Make sure endpoint matches your Flask route
+        method: 'POST',
+        body: formData,
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok: ' + response.statusText);
+        }
+        return response.json(); // Assuming the server responds with JSON
+    })
+    .then(data => {
+        console.log("Response received:", data);
+        const display = document.getElementById('resultDisplay');
+        display.textContent = 'Read bill successful: ' + JSON.stringify(data, null, 2);
+        updateUIWithItems(data); 
+    })
+    .catch(error => {
+        console.error('There has been a problem with your fetch operation:', error);
+        const display = document.getElementById('resultDisplay');
+        display.textContent = 'Failed to read bill: ' + error.message;
+    });
+}
+
+function updateUIWithItems(data) {
+    const itemList = document.getElementById('item-list');
+    itemList.innerHTML = '';  // Clear any existing content
+
+    let subtotal = 0;  // Variable to keep track of the subtotal
+
+    // Assuming each item includes a 'total' which contributes to the subtotal
+    data.line_items.forEach(item => {
+        const li = document.createElement('li');
+        li.className = 'list-group-item';
+        li.textContent = `${item.description}: $${item.total.toFixed(2)}`;
+        itemList.appendChild(li);
+        subtotal += item.total;
+    });
+
+    // Assuming the 'tax' and 'total' fields are part of your main JSON object
+    const tax = data.tax || 0;  // Default to 0 if tax is not specified
+    const total = data.total || (subtotal + tax);  // Calculate total if not specified
+
+    // Append the subtotal at the end
+    const subtotalLi = document.createElement('li');
+    subtotalLi.className = 'list-group-item';
+    subtotalLi.textContent = `Subtotal: $${subtotal.toFixed(2)}`;
+    itemList.appendChild(subtotalLi);
+
+    // Append the tax at the end
+    const taxLi = document.createElement('li');
+    taxLi.className = 'list-group-item';
+    taxLi.textContent = `Tax: $${tax.toFixed(2)}`;
+    itemList.appendChild(taxLi);
+
+    // Append the total at the end
+    const totalLi = document.createElement('li');
+    totalLi.className = 'list-group-item font-weight-bold';
+    totalLi.textContent = `Total: $${total.toFixed(2)}`;
+    itemList.appendChild(totalLi);
+}
 
 </script>
 

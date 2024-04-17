@@ -45,6 +45,7 @@
         }
 
         input[type="submit"],
+        input[type="button"],
         input[type="reset"] {
             background-color: #007bff;
             color: #fff;
@@ -52,7 +53,7 @@
             padding: 10px;
             border: 1px solid #ccc;
             border-radius: 4px;
-            width: 40%;
+            width: 30%;
             display: inline-block; /* Keeps buttons in-line */
             box-sizing: border-box;
         }
@@ -85,13 +86,14 @@
                             <label for="bill">Upload Bill Image:</label>
                             <input type="file" id="bill" name="bill" accept="image/*">
                             <br><br>
-                            <label for="description">description:</label>
+                            <label for="description">Description:</label>
                             <input type="text" class="form-control custom-input" id="description" name="description">
                             <br>
                             <label for="date">Date:</label>
                             <input type="date" id="date" name="date" required>
                             <br><br>
                             <div class="button-container">
+                                <input type="button" id ='readfile' value="Read Bill" onclick="readbill()">
                                 <input type="submit" value="Add">
                                 <input type="reset" value="Reset">
                             </div>
@@ -103,11 +105,17 @@
             <div class="col-md-6">
                 <div class="card">
                     <div class="card-body">
-                        <!-- Display scanned data or other information here -->
+                        <ul class="list-group list-group-flush" id="item-list">
+                            <!-- Items will be loaded here dynamically -->
+                            <pre id="resultDisplay" style="white-space: pre-wrap; background-color: #f4f4f4; padding: 10px;"></pre>
+
+                        </ul>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
 </body>
+
 </html>

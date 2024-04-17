@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expense Tracker</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <style>
+        /* Additional Custom Styles */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #333333; /* Light Gray */
+            margin: 0;
+            padding: 0;
+        }
+        .header {
+            text-align: center;
+            padding-top: 20px;
+            color: cadetblue;
+            background-color: black;
+            border-color: white;
+            border: 77px;
+            padding-bottom: 10px;
+        }
+        .main-container {
+            position: relative;
+            max-width: 100%;
+            overflow: hidden;
+            height: 700px;
+        }
+        .background-image {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('../static/main1.jpg');
+            background-size: cover;
+            filter: blur(5px);
+            z-index: -1;
+        }
+        .container {
+            top: 125px;
+            position: relative;
+            max-width: 600px;
+            margin: 0 auto;
+            text-align: center;
+            padding-top: 10px;
+            z-index: 1;
+        }
+        .lead {
+            margin-bottom: 15px;
+            margin-top: 30px;
+        }
+        .btn {
+            margin-top: 20px;
+        }
+        .info-text {
+            color: #333333; /* Dark Gray */
+            font-size: 18px;
+            margin-bottom: 30px;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <h1>Smart Expense Tracker</h1>
+    </header>
+    <div class="main-container">
+        <div class="background-image"></div>
+        <div class="container">
+            <h1 style="font-weight: bolder;">Welcome to Expense Tracker</h1>
+            <p class="lead" style="color:white">Track your expenses easily!</p>
+            <p class="info-text" style="color:white">The Expense Tracker application offers a comprehensive set of features designed to streamline and enhance the management of personal finances. With its user-friendly interface and robust functionality, Expense Tracker empowers users to take control of their spending and achieve their financial goals with ease.</p>
+            <p class="info-text" style="color:white">Experience Expense Tracker Application</p>
+            <!-- <div class="image-section">
+                <img src="../static/main.jpg" alt="Expense Tracker Image" class="img-fluid">
+            </div> -->
+            <a class="btn btn-primary mr-2" href="{{ url_for('signup') }}">Signup</a>
+            <a class="btn btn-success" href="{{ url_for('login') }}">Login</a>
+        </div>
+    </div>
+</body>
+</html>

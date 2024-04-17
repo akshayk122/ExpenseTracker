@@ -1,5 +1,5 @@
 import calendar
-from flask import Flask, render_template, request, redirect, url_for, session,make_response,flash
+from flask import Flask, render_template, request, redirect, url_for, session,make_response,flash,jsonify
 import sqlite3
 import database as db
 import matplotlib.pyplot as plt
@@ -128,30 +128,46 @@ def addexpense():
         return redirect(url_for('dashboard'))
     return render_template('addexpense.html')
 
+@app.route('/read_expense', methods=['GET', 'POST'])
 def read_expense():
-    # Check if a file is uploaded
-    if 'bill' not in request.files:
-        return 'No file uploaded', 400
-    
-    file = request.files['bill']
-    
-    # Check if the file is an image
-    if file and allowed_file(file.filename):
-        # Convert the image to text using pytesseract
-        text = pytesseract.image_to_string(Image.open(file))
-        
-        # Process the text to extract relevant information
-        # (You'll need to implement this based on your specific requirements)
-        extracted_info = process_extracted_text(text)
-        
-        # Save the extracted information to the database
-        # (You'll need to implement this based on your specific requirements)
-        print('bill',extracted_info)
-        
-        return 'Expense added successfully', 200
-    else:
-        return 'Invalid file format', 400
+    if request.method == 'POST':
+        print('post')
+        file = request.files['bill']
+        #file processing block
+        if file.filename == '':
+            return 'No selected file'
+        if file:
+            with temporary_file(suffix=os.path.splitext(file.filename)[1]) as temp_file_path:
+                file.save(temp_file_path)
+                data=sn.scan_image(temp_file_path)
+                print(data)
+    return data
 
+@app.route('/read_bill', methods=['POST'])
+def read_bill():
+    print('read_bill')
+    file = request.files['bill']
+    print(file)
+    if file.filename == '':
+            return 'No selected file'
+    if file:
+            with temporary_file(suffix=os.path.splitext(file.filename)[1]) as temp_file_path:
+                file.save(temp_file_path)
+                total,category,data=sn.scan_image(temp_file_path)
+                print(total,category)
+    # Sample data you might want to return
+    sample_data = {
+        "status": "success",
+        "message": "Data retrieved successfully",
+        "data": {
+            "id": 1,
+            "description": "Sample item",
+            "amount": 99.99,
+            "date": "2024-04-17"
+        }
+    }
+    sdata=data
+    return jsonify(sdata)
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in {'png', 'jpg', 'jpeg', 'gif'}
 
@@ -653,4 +669,4 @@ def logout():
     return response
 
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=True)

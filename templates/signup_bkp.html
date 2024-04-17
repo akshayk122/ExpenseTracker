@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Signup</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<style>
+    .header {
+        text-align: center;
+        padding-top: 20px;
+        color: cadetblue;
+        background-color: black;
+        border-color: white;
+        border: 77px;
+        padding-bottom: 10px;
+    }
+    .container {
+        max-width: 600px; /* Reduced width */
+        margin: 0 auto; /* Centering */
+        position: relative;
+        padding-bottom: 20px; /* Positioning context for the gif div */
+    }
+</style>
+<body class="bg-light">
+    <header class="header">
+        <h1>Smart Expense Tracker</h1>
+    </header>
+    <div class="container mt-5">
+        <h1>Signup</h1>
+        <form id="signupForm" action="{{ url_for('signup') }}" method="POST">
+            <div class="form-group">
+                <label for="firstname">First Name:</label>
+                <input type="text" class="form-control custom-input" id="firstname" name="firstname">
+            </div>
+            <div class="form-group">
+                <label for="lastname">Last Name:</label>
+                <input type="text" class="form-control custom-input" id="lastname" name="lastname">
+            </div>
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="text" class="form-control custom-input" id="email" name="email">
+            </div>
+            <div class="form-group">
+                <label for="lastname">Phone:</label>
+                <input type="tel" class="form-control custom-input" id="tel" name="tel"  pattern="[0-9]{10}" required>
+            </div>
+            <div class="form-group">
+                <label for="username">Username:</label>
+                <input type="text" class="form-control custom-input" id="username" name="username">
+            </div>
+            <div class="form-group">
+                <label for="password">Password:</label>
+                <input type="password" class="form-control custom-input" id="password" name="password">
+            </div>
+            <div class="form-group">
+                <label for="confirmpassword">Confirm Password:</label>
+                <input type="password" class="form-control custom-input" id="confirmpassword" name="confirmpassword">
+            </div>
+            <button type="submit" class="btn btn-primary">Signup</button>
+            
+        </form>
+    </div>
+</body>
+<script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    document.getElementById("signupForm").onsubmit = function(e) {
+        var password = document.getElementById("password").value;
+        var confirmPassword = document.getElementById("confirmpassword").value;
+        
+        if (password !== confirmPassword) {
+            e.preventDefault(); // Prevent form submission
+            Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: 'Passwords do not match!',
+                footer: 'Please ensure the passwords match before submitting.'
+            });
+        }
+    };
+</script>
+</html>

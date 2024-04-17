@@ -23,6 +23,17 @@
         padding-top: 50px; /* Adjusted padding */
         position: relative; /* Positioning context for the gif div */
     }
+    .background-container {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: url('../static/main2.png');
+        background-size: cover;
+        filter: blur(3px);
+        z-index: -1;
+    }
     .gif-container {
         position: absolute;
         top: 65%;
@@ -35,31 +46,34 @@
     <header class="header">
         <h1>Smart Expense Tracker</h1>
     </header>
+
+    <div class="background-container"></div> <!-- Background image container -->
     <div class="container mt-5">
+        
         <div class="gif-container">
             <img src="../static/gif/login.gif" alt="GIF Image" width="300">
         </div>
-        <h1>Login</h1>
+        <h1 style="color: white;">Login</h1>
         {% if error %}
-            <p style="color: red;">{{ error }}</p>
+            <p style="color: black;">{{ error }}</p>
         {% endif %}
         <form action="{{ url_for('login') }}" method="POST">
             <div class="form-group">
-                <label for="username">Username:</label>
+                <label style="color: white;" for="username">Username:</label>
                 <input type="text" class="form-control custom-input" id="username" name="username" required>
             </div>
             <div class="form-group">
-                <label for="password">Password:</label>
+                <label style="color: white;" for="password">Password:</label>
                 <input type="password" class="form-control custom-input" id="password" name="password" required>
             </div>
             <div class="form-group">
-                <label>
+                <label style="color: white;">
                     <input type="radio" id="userRole" name="role" value="user" checked>
-                    &nbsp; User
+                    &nbsp; User &nbsp;
                 </label>
-                <label>
+                <label style="color: white;">
                     <input type="radio" id="adminRole" name="role" value="admin">
-                    &nbsp; Admin
+                    &nbsp; Admin &nbsp;
                 </label>
             </div>            
             <button type="submit" class="btn btn-primary">Login</button>
